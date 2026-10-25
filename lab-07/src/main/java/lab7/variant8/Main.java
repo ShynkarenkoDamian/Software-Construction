@@ -1,8 +1,23 @@
 package lab7.variant8;
 
+import lab7.variant8.courseregistration.CourseRegistrationService;
+import lab7.variant8.courseregistration.InMemoryCourseRepository;
+import lab7.variant8.courseregistration.InMemoryEmailGateway;
+import lab7.variant8.courseregistration.InMemoryRegistrationSlipGenerator;
+import lab7.variant8.courseregistration.MariadbCourseRepository;
+import lab7.variant8.courseregistration.PdfInvoiceGenerator;
+import lab7.variant8.courseregistration.RegistrationRequest;
+import lab7.variant8.courseregistration.UniversityEmailGateway;
 import lab7.variant8.datarepositories.DataSyncService;
 import lab7.variant8.datarepositories.InMemoryRepository;
 import lab7.variant8.datarepositories.ReadOnlyAuditRepository;
+import lab7.variant8.gamecharacters.BattleSystem;
+import lab7.variant8.gamecharacters.BlacksmithNpc;
+import lab7.variant8.gamecharacters.MageCharacter;
+import lab7.variant8.gamecharacters.Marketplace;
+import lab7.variant8.gamecharacters.NpcVendor;
+import lab7.variant8.gamecharacters.WorldNavigator;
+import lab7.variant8.gamecharacters.Workshop;
 import lab7.variant8.loaninterest.InterestRateStrategy;
 import lab7.variant8.loaninterest.LoanApplicant;
 import lab7.variant8.loaninterest.LoanInterestCalculator;
@@ -37,6 +52,8 @@ public class Main {
         demoSrp();
         demoOcp();
         demoLsp();
+        demoIsp();
+        demoDip();
     }
 
     private static void demoSrp() throws IOException {
@@ -96,5 +113,55 @@ public class Main {
 
         // new DataSyncService<String>().syncEntities(audit, List.of("x"));
         //   ^ НЕ КОМПІЛЮЄТЬСЯ: ReadOnlyAuditRepository не є Repository — порушення виявляється на етапі компіляції.
+    }
+
+    private static void demoIsp() {
+        System.out.println();
+        System.out.println("===== Завдання 4. ISP: ролі ігрових персонажів =====");
+
+        MageCharacter mage = new MageCharacter(System.out);
+        NpcVendor vendor = new NpcVendor(System.out);
+        BlacksmithNpc blacksmith = new BlacksmithNpc(System.out); // ілюстративний: комбінація Movable + Crafter + Trader
+
+        // Навігатор залежить лише від Movable — приймає всіх трьох.
+        new WorldNavigator().moveAll(List.of(mage, vendor, blacksmith), 10, 20);
+
+        // Кожен клієнт бачить лише свою роль.
+        BattleSystem battle = new BattleSystem();
+        battle.castInCombat(mage, "Fireball", 30);
+        battle.supportAlly(mage, 50);
+        new Marketplace().openShop(vendor, 7);
+        new Workshop().craft(blacksmith, "iron-sword");
+
+        // new BattleSystem().castInCombat(vendor, "Fireball", 30);
+        //   ^ НЕ КОМПІЛЮЄТЬСЯ: NpcVendor не є SpellCaster — раніше це був UnsupportedOperationException під час гри.
+    }
+
+    private static void demoDip() {
+        System.out.println();
+        System.out.println("===== Завдання 5. DIP: реєстрація на курс (Main = Composition Root) =====");
+
+        RegistrationRequest request = new RegistrationRequest();
+        request.setStudentId("S-1001");
+        request.setStudentEmail("student@university.local");
+        request.setCourseCode("CS-101");
+
+        // Збірка №1: «продакшн» — реальні (симульовані) MariaDB, PDF і поштовий шлюз.
+        CourseRegistrationService production = new CourseRegistrationService(
+                new MariadbCourseRepository(),
+                new PdfInvoiceGenerator(),
+                new UniversityEmailGateway());
+        production.registerStudent(request);
+
+        // Збірка №2: підміна реалізацій без жодної зміни CourseRegistrationService.
+        InMemoryCourseRepository repository = new InMemoryCourseRepository();
+        InMemoryRegistrationSlipGenerator slips = new InMemoryRegistrationSlipGenerator();
+        InMemoryEmailGateway mail = new InMemoryEmailGateway();
+        new CourseRegistrationService(repository, slips, mail).registerStudent(request);
+
+        System.out.println("In-memory збірка (без консольного виводу інфраструктури):");
+        System.out.println("  бронювання: " + repository.bookings());
+        System.out.println("  квитанції:  " + slips.slips());
+        System.out.println("  листи:      " + mail.outbox());
     }
 }

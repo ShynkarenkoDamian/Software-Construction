@@ -90,3 +90,65 @@ src/main/java/lab7/variant8
 - Основний код компілювався JDK 21 з `-source 17`, демо запускалось.
 - Тести: 56 тестів пройшли в оточенні, де Maven і JUnit недоступні, тому я запускав їх через мінімальну заглушку JUnit-API
   (`@Test`, `@BeforeEach`, `@AfterEach`, `@TempDir`, `Assertions`). **Справжній `mvn test` я не запускав** — запустіть його один раз у себе.
+
+---
+
+## Доповнення: завдання 4–5 (ISP, DIP)
+
+> Текст вище описує завдання 1–3 і не змінювався. Нижче — що додано для завдань 4 і 5. Заголовок цього файла й назва в `pom.xml` («tasks 1-3») лишились із першої версії.
+
+| Завдання | Принцип | Предметна область | Пакет |
+|---|---|---|---|
+| 4 | ISP | Ігрові персонажі (`IGameCharacter`) | `lab7.variant8.gamecharacters` |
+| 5 | DIP | Реєстрація на курс (`CourseRegistrationService`) | `lab7.variant8.courseregistration` |
+
+Аналіз і пояснення рефакторингу — у [`ANALYSIS.md`](ANALYSIS.md) (розділи «Завдання 4», «Завдання 5»), питання для захисту — у [`THEORY.md`](THEORY.md) (розділ 10).
+
+### Структура (нове)
+
+```
+src/main/java/lab7/variant8
+├── Main.java                         + demoIsp(), demoDip(); Main = Composition Root
+├── gamecharacters/                   ЗАВДАННЯ 4 (ISP)
+│   ├── Movable, SpellCaster,         рольові інтерфейси (по одному методу)
+│   │   Healer, Crafter, Trader
+│   ├── MageCharacter                 Movable + SpellCaster + Healer
+│   ├── NpcVendor                     Movable + Trader
+│   ├── BlacksmithNpc                 Movable + Crafter + Trader (ілюстративний)
+│   └── WorldNavigator, BattleSystem, клієнти, що залежать лише від потрібної ролі
+│       Marketplace, Workshop
+└── courseregistration/               ЗАВДАННЯ 5 (DIP)
+    ├── CourseRepository              абстракції (належать високому рівню)
+    ├── RegistrationSlipGenerator
+    ├── EmailGateway
+    ├── CourseRegistrationService     залежить лише від абстракцій, Constructor Injection
+    ├── RegistrationRequest           сутність (без змін)
+    ├── MariadbCourseRepository       «продакшн»-реалізації (вихідні класи, тепер implements ...)
+    ├── PdfInvoiceGenerator
+    ├── UniversityEmailGateway
+    └── InMemory{CourseRepository,    підміни для демо й тестів («mock»)
+        RegistrationSlipGenerator,
+        EmailGateway}
+```
+
+Вихідний код: `src/test/java/lab7/variant8/gamecharacters/legacy/GameCharacterSystem.java` і
+`src/test/java/lab7/variant8/courseregistration/legacy/Variant8_CourseRegistrationService.java` (змінено лише рядок `package`).
+
+### Що змінено відносно вихідного коду (завдання 4–5)
+
+1. **Завдання 4.** Додано чотири клієнтські класи та ілюстративний `BlacksmithNpc` — їх немає у вихідному коді (причини в `ANALYSIS.md` §4.4).
+   Повідомлення мага й торговця збережено дослівно. Параметр `manaCost` лишився не використаним, як в оригіналі.
+2. **Завдання 4.** Персонажі приймають `PrintStream` у конструкторі (для тестів); `Main` передає `System.out`.
+3. **Завдання 5.** Конкретні класи (`MariadbCourseRepository`, `PdfInvoiceGenerator`, `UniversityEmailGateway`) зберегли імена та вивід, додано лише `implements`.
+   Вони, як і раніше, друкують у `System.out`.
+4. **Завдання 5.** Сервіс і сутність винесено з вкладених класів у окремі файли. Умову валідації розкладено на guard clauses без зміни змісту;
+   поведінку, яка може здатись помилкою (e-mail не перевіряється, пробіли не вважаються порожнім рядком), **не виправляли** — вона зафіксована тестами.
+5. **Завдання 5.** `InMemory*` класи — додані мною підміни (їх немає у вихідному коді): потрібні для демонстрації заміни реалізацій і для тестів.
+6. **`UtilityBillingService` (завдання 1) не змінювався.** Раніше в ANALYSIS/THEORY було припущення, що DIP торкнеться й його; у варіанті 8 завдання 5 стосується реєстрації на курс.
+
+### Як перевірено (завдання 4–5)
+
+- Основний код компілювався JDK 21 з `-source 17`, `Main` запускався (демо завдань 1–5 відпрацювало).
+- Тести: усі 87 пройшли (56 попередніх + 31 нових: 16 для завдання 4, 15 для завдання 5), але знову через мінімальну заглушку JUnit-API,
+  а не через справжній `mvn test` — Maven у тому оточенні недоступний. **Запустіть `mvn test` у себе один раз.**
+- Якщо в консолі замість кирилиці знаки питання, додайте до VM options `-Dfile.encoding=UTF-8` (для JDK 19+ також `-Dstdout.encoding=UTF-8`).
