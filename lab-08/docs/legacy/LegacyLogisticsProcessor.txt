@@ -1,0 +1,76 @@
+// Вихідний (legacy) код варіанту 8, збережено для порівняння. Не входить у збірку.
+// (У Java кілька public-класів в одному файлі не компілюються, тому це .txt)
+
+public class Sender {
+    public int id;
+    public String companyName;
+    public String contactPerson;
+    public String email;
+}
+
+public class Cargo {
+    public double weightKg;
+    public double volumeCubMetres;
+    public double declaredValue;
+    public String deliveryType; // "Standard", "Express", "Freight"
+}
+
+public class Shipment {
+    public int trackingId;
+    public Sender sender;
+    public Cargo cargo;
+    public double transportFee;
+    public double insuranceFee;
+    public double totalCost;
+    public String status;
+}
+
+public class LegacyLogisticsProcessor {
+    public void processShipmentConsole() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("=== Оформлення відправки вантажу ===");
+        System.out.print("Введіть назву компанії-відправника: ");
+        String company = scanner.nextLine();
+        System.out.print("Введіть тип доставки (Standard/Express/Freight): ");
+        String deliveryType = scanner.nextLine();
+
+        Sender sender = new Sender();
+        sender.id = 55; sender.companyName = company; sender.contactPerson = "Іван Петренко"; sender.email = "logistics@company.ua";
+
+        Cargo cargo = new Cargo();
+        cargo.weightKg = 120.0; cargo.volumeCubMetres = 1.5; cargo.declaredValue = 50000.0; cargo.deliveryType = deliveryType;
+
+        Shipment shipment = new Shipment();
+        shipment.trackingId = 770099;
+        shipment.sender = sender;
+        shipment.cargo = cargo;
+        shipment.status = "Created";
+
+        double baseRatePerKg = 15.0;
+        double baseTransport = shipment.cargo.weightKg * baseRatePerKg;
+
+        if ("Express".equalsIgnoreCase(shipment.cargo.deliveryType)) {
+            baseTransport *= 1.8;
+        } else if ("Freight".equalsIgnoreCase(shipment.cargo.deliveryType)) {
+            baseTransport *= 1.2;
+        }
+
+        double insurance = shipment.cargo.declaredValue * 0.005;
+
+        shipment.transportFee = baseTransport;
+        shipment.insuranceFee = insurance;
+        shipment.totalCost = shipment.transportFee + shipment.insuranceFee;
+        shipment.status = "Dispatched";
+
+        String waybill = "Товарно-транспортна накладна TTN-" + shipment.trackingId +
+                "\nВідправник: " + shipment.sender.companyName +
+                "\nТип: " + shipment.cargo.deliveryType +
+                "\nТранспортування: " + shipment.transportFee + " грн" +
+                "\nСтраховка: " + shipment.insuranceFee + " грн" +
+                "\nЗагальна вартість: " + shipment.totalCost + " грн";
+        System.out.println(waybill);
+
+        System.out.println("[Реєстр] Накладну TTN-" + shipment.trackingId + " додано у базу відправок.");
+        System.out.println("[Email] Трекінг-код TTN-" + shipment.trackingId + " надіслано на " + shipment.sender.email);
+    }
+}
