@@ -3,7 +3,7 @@ package lab10.task2_factorymethod;
 import lab10.domain.Car;
 import lab10.domain.Client;
 
-/** Конкретний творець: оренда, що створює погодинної поїздку. */
+/** Конкретний творець: оренда, що створює погодинну поїздку. */
 public class HourlyRental extends RentalProcess {
 
     @Override
