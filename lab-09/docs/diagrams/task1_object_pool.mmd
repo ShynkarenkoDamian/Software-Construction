@@ -1,0 +1,87 @@
+---
+title: Завдання 1. Видача автомобілів парку — шаблон Object Pool
+---
+classDiagram
+    direction TB
+
+    class CarPool {
+        <<Object Pool>>
+        -String SOURCE$
+        -Deque~CarSpec~ notCommissioned
+        -Deque~Car~ freeCars
+        -List~Car~ allCars
+        -Queue~Client~ waitingQueue
+        +CarPool(fleet List~CarSpec~)
+        +rent(client Client) Optional~Car~
+        +release(car Car) Optional~Client~
+        -commission(spec CarSpec) Car
+        +getCommissionedCount() int
+        +getWaitingCount() int
+        +printStatistics() void
+    }
+
+    class CarSpec {
+        <<record>>
+        +String plateNumber
+        +String model
+    }
+
+    class Car {
+        <<Reusable>>
+        +int DEFAULT_SEAT_POSITION$
+        -String plateNumber
+        -String model
+        -CarState state
+        -Client currentClient
+        -String multimediaAccount
+        -List~String~ navigatorAddresses
+        -int seatPosition
+        -int tripsCount
+        ~Car(plateNumber String, model String)
+        ~handOutTo(client Client) void
+        ~resetForNextRental() void
+        +signIn(settings PersonalSettings) void
+        +describePersonalData() String
+        +getTripsCount() int
+    }
+
+    class CarState {
+        <<enumeration>>
+        FREE
+        RENTED
+    }
+
+    class Client {
+        <<Pool Client>>
+        -String fullName
+        -PersonalSettings settings
+        +getFullName() String
+        +getSettings() PersonalSettings
+    }
+
+    class PersonalSettings {
+        -String multimediaAccount
+        -List~String~ navigatorAddresses
+        -int seatPosition
+    }
+
+    class Main {
+        <<Runner>>
+        +situation1ObjectPool()$ void
+    }
+
+    CarPool "1" *-- "0..4" Car : allCars (володіє)
+    CarPool "1" o-- "0..4" Car : freeCars (вільні)
+    CarPool "1" o-- "0..*" Client : waitingQueue (FIFO)
+    CarPool ..> CarSpec : «use» фізичний парк
+    CarPool ..> Car : «create» commission()
+    Car --> CarState : state
+    Car "1" --> "0..1" Client : currentClient
+    Client "1" *-- "1" PersonalSettings
+    Car ..> PersonalSettings : «use» signIn()
+    Main ..> CarPool : rent() / release()
+    Main ..> Client : створює
+
+    note for CarPool "Роль: Object Pool.<br/>Контролює максимум авто (4), видає вільне,<br/>приймає повернене, скидає його стан<br/>і веде чергу очікування."
+    note for Car "Роль: Reusable (об'єкт пулу).<br/>Конструктор пакетний: створити авто<br/>в обхід CarPool неможливо.<br/>resetForNextRental() стирає акаунт,<br/>адреси та положення сидіння."
+    note for Main "Роль: клієнт шаблону<br/>(демонстраційний сценарій)."

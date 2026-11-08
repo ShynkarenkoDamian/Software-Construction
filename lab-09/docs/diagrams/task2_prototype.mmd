@@ -1,0 +1,87 @@
+---
+title: Завдання 2. Корпоративні тарифні плани — шаблон Prototype
+---
+classDiagram
+    direction TB
+
+    class Prototype~T~ {
+        <<interface>>
+        +copy() T
+    }
+
+    class TariffPlan {
+        <<Concrete Prototype>>
+        -Locale UA$
+        -String name
+        -double pricePerMinute
+        -double pricePerKm
+        -Insurance insurance
+        -int speedLimit
+        -List~EndZone~ endZones
+        -List~Bonus~ bonuses
+        +TariffPlan(name String, pricePerMinute double, pricePerKm double, insurance Insurance, speedLimit int)
+        -TariffPlan(source TariffPlan)
+        +copy() TariffPlan
+        +addEndZone(zone EndZone) void
+        +addBonus(bonus Bonus) void
+        +setName(name String) void
+        +setPricePerMinute(value double) void
+        +describe() List~String~
+    }
+
+    class Insurance {
+        <<Concrete Prototype>>
+        -InsuranceType type
+        +copy() Insurance
+        +setType(type InsuranceType) void
+    }
+
+    class InsuranceType {
+        <<enumeration>>
+        BASIC
+        FULL
+    }
+
+    class EndZone {
+        <<Concrete Prototype>>
+        -String name
+        +copy() EndZone
+    }
+
+    class Bonus {
+        <<Concrete Prototype>>
+        -String name
+        -int percent
+        +copy() Bonus
+    }
+
+    class TariffConfigurator {
+        <<Prototype Factory>>
+        -String SOURCE$
+        -TariffConfigurator()
+        +configureStandardTariff()$ TariffPlan
+    }
+
+    class Main {
+        <<Client>>
+        +situation2Prototype()$ void
+    }
+
+    Prototype <|.. TariffPlan : реалізація
+    Prototype <|.. Insurance : реалізація
+    Prototype <|.. EndZone : реалізація
+    Prototype <|.. Bonus : реалізація
+
+    TariffPlan "1" *-- "1" Insurance : insurance
+    TariffPlan "1" *-- "0..*" EndZone : endZones
+    TariffPlan "1" *-- "0..*" Bonus : bonuses
+    Insurance --> InsuranceType : type
+
+    TariffConfigurator ..> TariffPlan : «create» один раз (дорого)
+    Main ..> TariffConfigurator : отримує еталон
+    Main ..> TariffPlan : copy() для кожної компанії
+
+    note for Prototype "Роль: Prototype.<br/>Єдиний контракт глибокого копіювання."
+    note for TariffPlan "Роль: Concrete Prototype (еталон і копії).<br/>copy() створює нові Insurance, EndZone, Bonus<br/>і нові списки, тому зміни копії<br/>не впливають на еталон."
+    note for TariffConfigurator "Дороге налаштування з нуля<br/>виконується один раз."
+    note for Main "Роль: Client — копіює еталон<br/>і змінює лише копію."
