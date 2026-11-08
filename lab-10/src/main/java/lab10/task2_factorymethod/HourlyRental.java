@@ -1,0 +1,13 @@
+package lab10.task2_factorymethod;
+
+import lab10.domain.Car;
+import lab10.domain.Client;
+
+/** Конкретний творець: оренда, що створює погодинної поїздку. */
+public class HourlyRental extends RentalProcess {
+
+    @Override
+    protected Trip createTrip(Car car, Client client) {
+        return new HourlyTrip(car, client);
+    }
+}
