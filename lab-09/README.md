@@ -6,9 +6,9 @@
 |---|---|---|---|
 | 1. Видача автомобілів парку | Object Pool | `lab9.task1_objectpool` | виконано |
 | 2. Корпоративні тарифні плани | Prototype | `lab9.task2_prototype` | виконано |
-| 3. Карта парку автомобілів | Singleton | `lab9.task3_singleton` | **колега** |
-| Діаграми 1–2 | — | `docs/diagrams/` | виконано |
-| Діаграма 3, крос-рев'ю | — | `docs/diagrams/`, `docs/` | **колега / разом** |
+| 3. Карта парку автомобілів | Singleton | `lab9.task3_singleton` | виконано |
+| Діаграми 1–3 | — | `docs/diagrams/` | виконано |
+| Крос-рев'ю | — | `docs/` (розділ 7) | чернетка готова, потрібне підтвердження обох |
 
 ## Запуск
 - IntelliJ IDEA: *File → Open* → вибрати теку проєкту (підхопиться `pom.xml`) → запустити `lab9.Main`.
@@ -21,7 +21,7 @@ src/main/java/lab9/
   common/ConsoleLogger.java  журнал [час] [джерело] подія
   task1_objectpool/          Object Pool
   task2_prototype/           Prototype
-  task3_singleton/           ← сюди колега додає Singleton
+  task3_singleton/           Singleton (FleetMap, FleetCar, CarStatus, Dispatcher, MobileApp)
 docs/
   Підготовка_до_захисту.md   теорія, що зроблено і як, що розповідати
   sample_output.txt          еталонний вивід раннера

@@ -9,6 +9,8 @@ import lab9.task2_prototype.EndZone;
 import lab9.task2_prototype.InsuranceType;
 import lab9.task2_prototype.TariffConfigurator;
 import lab9.task2_prototype.TariffPlan;
+import lab9.task3_singleton.Dispatcher;
+import lab9.task3_singleton.MobileApp;
 
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
@@ -30,7 +32,7 @@ public class Main {
 
         situation1ObjectPool();
         situation2Prototype();
-        // TODO (колега): situation3Singleton();
+        situation3Singleton();
     }
 
     // ------------------------------------------------------------------
@@ -142,5 +144,32 @@ public class Main {
             System.out.println(line.toString().stripTrailing());
         }
         System.out.println();
+    }
+
+    // ------------------------------------------------------------------
+    // Ситуація 3. Карта парку автомобілів — Singleton
+    // ------------------------------------------------------------------
+    static void situation3Singleton() {
+        ConsoleLogger.section("Ситуація 3. Карта парку автомобілів (Singleton)");
+
+        // new FleetMap();  // не компілюється: конструктор приватний, друга карта неможлива
+
+        ConsoleLogger.log("Main", "Диспетчер отримує карту парку (перше звернення)");
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.reserveForCorporateClient("CE1234AA", "ТОВ «Буковина-Транс»");
+
+        ConsoleLogger.log("Main", "Застосунок отримує карту парку");
+        MobileApp app = new MobileApp();
+        ConsoleLogger.log("Main", "Застосунок намагається видати зарезервоване авто приватному клієнту");
+        app.issueToPrivateClient("CE1234AA", "Ткачук");
+        ConsoleLogger.log("Main", "Для порівняння: вільне авто застосунок видає без проблем");
+        app.issueToPrivateClient("CE2345BB", "Мельник");
+
+        String dispatcherMapId = dispatcher.reportMapId();
+        String appMapId = app.reportMapId();
+        ConsoleLogger.log("Main", "Ідентифікатори карти з диспетчерської і застосунку однакові: "
+                + yesNo(dispatcherMapId.equals(appMapId)));
+
+        app.showFleet();
     }
 }
