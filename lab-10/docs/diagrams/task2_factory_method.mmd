@@ -1,0 +1,104 @@
+---
+title: Завдання 2. Види оренди — шаблон Factory Method
+---
+classDiagram
+    direction TB
+
+    class RentalProcess {
+        <<Creator>>
+        -String SOURCE$
+        +rent(car Car, client Client, duration Duration) Trip
+        #createTrip(car Car, client Client) Trip
+        -verify(car Car, client Client) void
+    }
+
+    class MinuteRental {
+        <<Concrete Creator>>
+        #createTrip(car Car, client Client) Trip
+    }
+    class HourlyRental {
+        <<Concrete Creator>>
+        #createTrip(car Car, client Client) Trip
+    }
+    class DailyRental {
+        <<Concrete Creator>>
+        #createTrip(car Car, client Client) Trip
+    }
+    class WeekendRental {
+        <<Concrete Creator, додано пізніше>>
+        #createTrip(car Car, client Client) Trip
+    }
+
+    class Trip {
+        <<Product>>
+        -Car car
+        -Client client
+        -Duration duration
+        -double cost
+        -boolean finished
+        #Trip(car Car, client Client)
+        +finish(duration Duration) void
+        #calculateCost(duration Duration) double
+        +getRentalName() String
+        +describeTariff() String
+        +formatMoney(amount double)$ String
+        +formatDuration(duration Duration)$ String
+    }
+
+    class MinuteTrip {
+        <<Concrete Product>>
+        -double PRICE_PER_MINUTE$
+        #calculateCost(duration Duration) double
+    }
+    class HourlyTrip {
+        <<Concrete Product>>
+        -double PRICE_PER_HOUR$
+        #calculateCost(duration Duration) double
+    }
+    class DailyTrip {
+        <<Concrete Product>>
+        -double PRICE_PER_DAY$
+        #calculateCost(duration Duration) double
+    }
+    class WeekendTrip {
+        <<Concrete Product, додано пізніше>>
+        -double WEEKEND_PRICE$
+        #calculateCost(duration Duration) double
+    }
+
+    class Car {
+        -String plateNumber
+    }
+    class Client {
+        -String fullName
+        -String driverLicense
+    }
+
+    class Main {
+        <<Client>>
+        +situation2FactoryMethod()$ void
+    }
+
+    RentalProcess <|-- MinuteRental
+    RentalProcess <|-- HourlyRental
+    RentalProcess <|-- DailyRental
+    RentalProcess <|-- WeekendRental
+
+    Trip <|-- MinuteTrip
+    Trip <|-- HourlyTrip
+    Trip <|-- DailyTrip
+    Trip <|-- WeekendTrip
+
+    RentalProcess ..> Trip : «use» (створює через createTrip)
+    MinuteRental ..> MinuteTrip : «create»
+    HourlyRental ..> HourlyTrip : «create»
+    DailyRental ..> DailyTrip : «create»
+    WeekendRental ..> WeekendTrip : «create»
+
+    Trip "*" --> "1" Car : car
+    Trip "*" --> "1" Client : client
+    Main ..> RentalProcess : rent()
+
+    note for RentalProcess "Роль: Creator.<br/>rent() — незмінний процес (final),<br/>без розгалужень за видом оренди.<br/>createTrip() — фабричний метод."
+    note for Trip "Роль: Product.<br/>Кожен вид поїздки має<br/>власний розрахунок вартості."
+    note for WeekendRental "Нова оренда додається<br/>новими класами; RentalProcess<br/>не змінюється."

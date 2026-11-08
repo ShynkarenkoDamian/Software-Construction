@@ -1,0 +1,120 @@
+---
+title: Завдання 1. Обслуговування авто різних типів — шаблон Abstract Factory
+---
+classDiagram
+    direction LR
+
+    class VehicleEquipmentFactory {
+        <<Abstract Factory>>
+        +getVehicleType() VehicleType
+        +createTelematicsModule() TelematicsModule
+        +createEnergyCard() EnergyCard
+        +createLevelSensor() LevelSensor
+    }
+    class EquipmentElement {
+        <<interface>>
+        +getVehicleType() VehicleType
+        +describe() String
+    }
+    class TelematicsModule {
+        <<Abstract Product A>>
+    }
+    class EnergyCard {
+        <<Abstract Product B>>
+    }
+    class LevelSensor {
+        <<Abstract Product C>>
+    }
+    class VehicleType {
+        <<enumeration>>
+        PETROL
+        HYBRID
+        ELECTRIC
+        GAS
+    }
+    class FleetMaintenanceService {
+        <<Client>>
+        -String SOURCE$
+        +commissionCar(plateNumber String, factory VehicleEquipmentFactory) ServicedCar
+        -logElement(role String, element EquipmentElement) void
+    }
+    class ServicedCar {
+        -String plateNumber
+        -TelematicsModule telematics
+        -EnergyCard energyCard
+        -LevelSensor levelSensor
+        +toString() String
+    }
+    namespace petrol {
+        class PetrolEquipmentFactory {
+            <<Concrete Factory 1>>
+        }
+        class PetrolTelematicsModule
+        class PetrolEnergyCard
+        class PetrolLevelSensor
+    }
+    namespace hybrid {
+        class HybridEquipmentFactory {
+            <<Concrete Factory 2>>
+        }
+        class HybridTelematicsModule
+        class HybridEnergyCard
+        class HybridLevelSensor
+    }
+    namespace electric {
+        class ElectricEquipmentFactory {
+            <<Concrete Factory 3>>
+        }
+        class ElectricTelematicsModule
+        class ElectricEnergyCard
+        class ElectricLevelSensor
+    }
+    namespace gas {
+        class GasEquipmentFactory {
+            <<Concrete Factory 4, додано пізніше>>
+        }
+        class GasTelematicsModule
+        class GasEnergyCard
+        class GasLevelSensor
+    }
+    EquipmentElement <|-- TelematicsModule
+    EquipmentElement <|-- EnergyCard
+    EquipmentElement <|-- LevelSensor
+    EquipmentElement ..> VehicleType : getVehicleType()
+    VehicleEquipmentFactory <|.. PetrolEquipmentFactory
+    TelematicsModule <|.. PetrolTelematicsModule
+    EnergyCard <|.. PetrolEnergyCard
+    LevelSensor <|.. PetrolLevelSensor
+    PetrolEquipmentFactory ..> PetrolTelematicsModule : «create»
+    PetrolEquipmentFactory ..> PetrolEnergyCard : «create»
+    PetrolEquipmentFactory ..> PetrolLevelSensor : «create»
+    VehicleEquipmentFactory <|.. HybridEquipmentFactory
+    TelematicsModule <|.. HybridTelematicsModule
+    EnergyCard <|.. HybridEnergyCard
+    LevelSensor <|.. HybridLevelSensor
+    HybridEquipmentFactory ..> HybridTelematicsModule : «create»
+    HybridEquipmentFactory ..> HybridEnergyCard : «create»
+    HybridEquipmentFactory ..> HybridLevelSensor : «create»
+    VehicleEquipmentFactory <|.. ElectricEquipmentFactory
+    TelematicsModule <|.. ElectricTelematicsModule
+    EnergyCard <|.. ElectricEnergyCard
+    LevelSensor <|.. ElectricLevelSensor
+    ElectricEquipmentFactory ..> ElectricTelematicsModule : «create»
+    ElectricEquipmentFactory ..> ElectricEnergyCard : «create»
+    ElectricEquipmentFactory ..> ElectricLevelSensor : «create»
+    VehicleEquipmentFactory <|.. GasEquipmentFactory
+    TelematicsModule <|.. GasTelematicsModule
+    EnergyCard <|.. GasEnergyCard
+    LevelSensor <|.. GasLevelSensor
+    GasEquipmentFactory ..> GasTelematicsModule : «create»
+    GasEquipmentFactory ..> GasEnergyCard : «create»
+    GasEquipmentFactory ..> GasLevelSensor : «create»
+    FleetMaintenanceService ..> VehicleEquipmentFactory : «use»
+    FleetMaintenanceService ..> ServicedCar : «create»
+    ServicedCar "1" o-- "1" TelematicsModule
+    ServicedCar "1" o-- "1" EnergyCard
+    ServicedCar "1" o-- "1" LevelSensor
+
+    note for VehicleEquipmentFactory "Роль: Abstract Factory.<br/>Одна фабрика = одне сімейство (тип авто).<br/>Змішати елементи різних типів неможливо."
+    note for FleetMaintenanceService "Роль: Client.<br/>Знає лише абстракції, без перевірок типу авто.<br/>Новий тип не змінює цей клас."
+    note for PetrolTelematicsModule "Конкретні продукти мають<br/>пакетну видимість: створити їх<br/>можна лише через фабрику."
