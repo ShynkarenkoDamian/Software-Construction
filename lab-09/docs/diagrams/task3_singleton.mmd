@@ -1,0 +1,76 @@
+---
+title: Завдання 3. Карта парку автомобілів — шаблон Singleton
+---
+classDiagram
+    direction TB
+
+    class FleetMap {
+        <<Singleton>>
+        -String SOURCE$
+        -FleetMap instance$
+        -Map~String, FleetCar~ cars
+        -FleetMap()
+        +getInstance()$ FleetMap
+        -addCar(plateNumber String, location String) void
+        +reserve(plateNumber String, clientName String) boolean
+        +issue(plateNumber String, clientName String) boolean
+        -occupy(plateNumber String, newStatus CarStatus, clientName String) boolean
+        +printFleet(viewer String) void
+        +getId() String
+    }
+
+    class FleetCar {
+        <<Entity>>
+        -String plateNumber
+        -String location
+        -CarStatus status
+        -String holder
+        ~FleetCar(plateNumber String, location String)
+        ~occupy(newStatus CarStatus, holder String) void
+        +getPlateNumber() String
+        +getLocation() String
+        +getStatus() CarStatus
+        +getHolder() String
+    }
+
+    class CarStatus {
+        <<enumeration>>
+        AVAILABLE
+        RESERVED
+        ISSUED
+    }
+
+    class Dispatcher {
+        <<Singleton Client>>
+        -String SOURCE$
+        -FleetMap fleetMap
+        +reserveForCorporateClient(plateNumber String, company String) boolean
+        +reportMapId() String
+    }
+
+    class MobileApp {
+        <<Singleton Client>>
+        -String SOURCE$
+        -FleetMap fleetMap
+        +issueToPrivateClient(plateNumber String, clientName String) boolean
+        +reportMapId() String
+        +showFleet() void
+    }
+
+    class Main {
+        <<Runner>>
+        ~situation3Singleton()$ void
+    }
+
+    FleetMap "1" *-- "4" FleetCar : cars (створює в конструкторі)
+    FleetCar --> CarStatus : status
+    Dispatcher "1" --> "1" FleetMap : fleetMap = getInstance()
+    MobileApp "1" --> "1" FleetMap : fleetMap = getInstance()
+    Main ..> Dispatcher : створює
+    Main ..> MobileApp : створює
+
+    note for FleetMap "Роль: Singleton.<br/>Приватний конструктор + приватне статичне поле instance<br/>(volatile) + публічний getInstance() з double-checked<br/>locking. Друга карта неможлива, повідомлення<br/>«Карту парку ініціалізовано» виводиться один раз.<br/>reserve / issue / printFleet — synchronized."
+    note for FleetCar "Роль: допоміжний (запис карти).<br/>Конструктор і occupy() пакетні:<br/>стан авто змінюється лише через FleetMap."
+    note for Dispatcher "Роль: клієнт Singleton.<br/>Резервує авто для корпоративних клієнтів."
+    note for MobileApp "Роль: клієнт Singleton.<br/>Видає авто приватним клієнтам,<br/>бачить той самий стан, що й диспетчер."
+    note for Main "Роль: клієнт шаблону<br/>(демонстраційний сценарій)."
