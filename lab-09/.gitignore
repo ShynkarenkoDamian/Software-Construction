@@ -1,0 +1,62 @@
+# ===== IntelliJ IDEA =====
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# ===== Maven =====
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# ===== Gradle (на випадок, якщо колега використає) =====
+.gradle/
+build/
+
+# ===== Eclipse / VS Code / NetBeans =====
+.classpath
+.project
+.settings/
+bin/
+.vscode/
+nbproject/private/
+
+# ===== Скомпільовані файли та артефакти =====
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+replay_pid*
+
+# ===== Логи і тимчасові файли =====
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# ===== Операційна система =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Архіви (щоб випадково не закомітити zip з проєктом) =====
+*.zip
+*.rar
+*.7z
+
+# ===== Секрети (на майбутнє) =====
+.env
+*.pem
+*.key
+
+# ===== Діаграми НЕ ігноруємо: docs/diagrams/*.mmd, *.svg, *.png мають бути в репозиторії =====
