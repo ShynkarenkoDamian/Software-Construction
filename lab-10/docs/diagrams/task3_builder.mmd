@@ -1,0 +1,91 @@
+---
+title: Завдання 3. Бронювання авто — шаблон Builder
+---
+classDiagram
+    direction TB
+
+    class Booking {
+        <<Product>>
+        -DateTimeFormatter TIME_FORMAT$
+        -Client client
+        -Car car
+        -LocalDateTime startTime
+        -boolean childSeat
+        -boolean extraInsurance
+        -String deliveryAddress
+        -String comment
+        -Booking(builder Builder)
+        +getClient() Client
+        +getCar() Car
+        +getStartTime() LocalDateTime
+        +hasChildSeat() boolean
+        +hasExtraInsurance() boolean
+        +getDeliveryAddress() String
+        +getComment() String
+        +describe() String
+        +toString() String
+        -yesNo(value boolean)$ String
+    }
+
+    class Builder["Booking.Builder"] {
+        <<Builder>>
+        -String SOURCE$
+        -Clock clock
+        -Client client
+        -Car car
+        -LocalDateTime startTime
+        -boolean childSeat
+        -boolean extraInsurance
+        -String deliveryAddress
+        -String comment
+        +Builder(clock Clock)
+        +withClient(client Client) Builder
+        +withCar(car Car) Builder
+        +withStartTime(startTime LocalDateTime) Builder
+        +withChildSeat() Builder
+        +withExtraInsurance() Builder
+        +withDeliveryTo(address String) Builder
+        +withComment(comment String) Builder
+        +build() Booking
+        -fail(reason String) void
+    }
+
+    class BookingDirector {
+        <<Director>>
+        -String SOURCE$
+        -String AIRPORT_ADDRESS$
+        -Clock clock
+        +BookingDirector(clock Clock)
+        +buildChildTrip(client Client, car Car, startTime LocalDateTime) Booking
+        +buildAirportTrip(client Client, car Car, startTime LocalDateTime) Booking
+    }
+
+    class Car {
+        -String plateNumber
+    }
+
+    class Client {
+        -String fullName
+        -String driverLicense
+    }
+
+    class Main {
+        <<Client>>
+        ~situation3Builder()$ void
+        -attemptBooking(builder Builder)$ void
+    }
+
+    Builder ..> Booking : «create» build()
+    Booking ..> Builder : «use» приватний конструктор
+    BookingDirector ..> Builder : «use» послідовності кроків
+    Booking "*" --> "1" Client : client
+    Booking "*" --> "1" Car : car
+    Builder "1" --> "0..1" Client : client
+    Builder "1" --> "0..1" Car : car
+    Main ..> Builder : «use» покрокове формування
+    Main ..> BookingDirector : «use» типові бронювання
+
+    note for Booking "Роль: Product (незмінний).<br/>Поля final, сеттерів немає,<br/>конструктор приватний: створити<br/>бронювання можна лише через build()."
+    note for Builder "Роль: Builder (вкладений статичний клас Booking).<br/>Кроки withXxx() повертають this (fluent).<br/>build() перевіряє клієнта, авто і час початку<br/>(не в минулому) та кидає IllegalStateException."
+    note for BookingDirector "Роль: Director.<br/>Послідовності кроків для типових бронювань<br/>«Поїздка з дитиною» і «Аеропорт»<br/>описано в одному місці."
+    note for Main "Роль: клієнт шаблону<br/>(демонстраційний сценарій)."
