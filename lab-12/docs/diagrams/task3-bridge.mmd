@@ -1,0 +1,60 @@
+classDiagram
+direction TB
+
+class Report {
+  <<abstract>>
+  -ReportChannel channel
+  #Report(ReportChannel channel)
+  +send() void
+  #getTitle()* String
+  #buildBody()* String
+}
+class TripReport {
+  -String clientName
+  -String carId
+  -int minutes
+  -double cost
+  #getTitle() String
+  #buildBody() String
+}
+class MonthlyCorporateReport {
+  -String company
+  -String month
+  -int trips
+  -double total
+  #getTitle() String
+  #buildBody() String
+}
+class ReportChannel {
+  <<interface>>
+  +deliver(String title, String body) void
+}
+class AppChannel {
+  +deliver(String title, String body) void
+}
+class EmailChannel {
+  +deliver(String title, String body) void
+}
+class AccountingChannel {
+  +deliver(String title, String body) void
+}
+class TelegramBotChannel {
+  +deliver(String title, String body) void
+}
+
+Report "1" o--> "1" ReportChannel : channel (міст)
+TripReport --|> Report
+MonthlyCorporateReport --|> Report
+AppChannel ..|> ReportChannel
+EmailChannel ..|> ReportChannel
+AccountingChannel ..|> ReportChannel
+TelegramBotChannel ..|> ReportChannel
+
+note for Report "Роль: Abstraction<br>вид звіту (що містить);<br>делегує доставку каналу"
+note for TripReport "Роль: RefinedAbstraction"
+note for MonthlyCorporateReport "Роль: RefinedAbstraction"
+note for ReportChannel "Роль: Implementor<br>канал доставки (як доставляється)"
+note for AppChannel "Роль: ConcreteImplementor"
+note for EmailChannel "Роль: ConcreteImplementor"
+note for AccountingChannel "Роль: ConcreteImplementor"
+note for TelegramBotChannel "Роль: ConcreteImplementor<br>доданий одним класом"
