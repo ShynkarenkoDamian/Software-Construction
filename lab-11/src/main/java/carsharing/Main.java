@@ -14,6 +14,18 @@ import carsharing.task2_facade.PaymentService;
 import carsharing.task2_facade.TelematicsActivator;
 import carsharing.task2_facade.TripFacade;
 import carsharing.task2_facade.TripInsuranceService;
+import carsharing.task3_proxy.CarApp;
+import carsharing.task3_proxy.CarControlProxy;
+import carsharing.task3_proxy.RemoteCarServer;
+import carsharing.task3_proxy.RentalRegistry;
+import carsharing.task4_decorator.BookingSystem;
+import carsharing.task4_decorator.ChildSeatOption;
+import carsharing.task4_decorator.FullInsuranceOption;
+import carsharing.task4_decorator.OutOfCityOption;
+import carsharing.task4_decorator.RoofRackOption;
+import carsharing.task4_decorator.SecondDriverOption;
+import carsharing.task4_decorator.StandardTrip;
+import carsharing.task4_decorator.Trip;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
@@ -81,14 +93,44 @@ public class Main {
     /** Завдання 3: керування авто через віддалений сервер (Proxy). */
     private static void situation3Proxy() {
         header("Завдання 3. Віддалений сервер (Proxy)");
-        // TODO (колега): змоделювати ситуацію, див. carsharing.task3_proxy.package-info
-        Log.log("Runner", "не реалізовано: точка розширення для Завдання 3");
+
+        RentalRegistry rentals = new RentalRegistry();
+        rentals.rent("CE1234AA", "Ткачук");
+        RemoteCarServer server = new RemoteCarServer("CE1234AA");
+        CarControlProxy proxy = new CarControlProxy("CE1234AA", server, rentals);
+        CarApp app = new CarApp(proxy);
+
+        Log.log("Runner", "1) орендар Ткачук відкриває двері CE1234AA");
+        app.openDoors("Ткачук");
+
+        Log.log("Runner", "2) інший клієнт (Мельник) намагається відкрити CE1234AA");
+        app.openDoors("Мельник");
+
+        Log.log("Runner", "3) журнал команд і кількість звернень до сервера");
+        for (String record : proxy.getJournal()) {
+            Log.log("Runner", "журнал: " + record);
+        }
+        Log.log("Runner", "звернень до сервера виробника: " + server.getRequestCount());
     }
 
     /** Завдання 4: додаткові опції поїздки (Decorator). */
     private static void situation4Decorator() {
         header("Завдання 4. Опції поїздки (Decorator)");
-        // TODO (колега): змоделювати ситуацію, див. carsharing.task4_decorator.package-info
-        Log.log("Runner", "не реалізовано: точка розширення для Завдання 4");
+
+        BookingSystem booking = new BookingSystem();
+
+        Log.log("Runner", "1) звичайна 30-хвилинна поїздка");
+        Trip trip = new StandardTrip("CE1234AA", 30);
+        booking.checkout(trip);
+
+        Log.log("Runner", "2) до тієї самої поїздки додаємо повне страхування, дитяче крісло, другого водія");
+        trip = new FullInsuranceOption(trip);
+        trip = new ChildSeatOption(trip);
+        trip = new SecondDriverOption(trip);
+        booking.checkout(trip);
+
+        Log.log("Runner", "3) інша поїздка: за межі міста з багажником на дах");
+        Trip other = new RoofRackOption(new OutOfCityOption(new StandardTrip("CE5678BB", 30)));
+        booking.checkout(other);
     }
 }

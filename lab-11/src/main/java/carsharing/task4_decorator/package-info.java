@@ -1,17 +1,8 @@
 /**
- * ТОЧКА РОЗШИРЕННЯ - Завдання 4 (варіант 8): «Додаткові опції поїздки».
- * Шаблон: Decorator. Виконує колега. Клас-раннер: метод situation4Decorator() у carsharing.Main.
+ * Завдання 4 (варіант 8): «Додаткові опції поїздки». Шаблон: Decorator.
  *
- * Вимоги з лабораторної:
- *  - опції додаються до поїздки під час виконання програми у довільній комбінації;
- *  - поїздка з опціями використовується системою так само, як звичайна;
- *  - додавання нової опції не потребує змін в існуючих класах.
- *
- * Демонстраційний сценарій:
- *  - розрахувати вартість звичайної 30-хвилинної поїздки;
- *  - додати повне страхування, дитяче крісло і другого водія -> вивести опис і підсумкову вартість;
- *  - оформити іншу поїздку за межі міста з багажником на дах і показати коректний розрахунок.
- *
- * Логування: carsharing.common.Log.log("Джерело", "подія").
+ * Ролі: Trip - Component, StandardTrip - ConcreteComponent, TripOption - Decorator,
+ * FullInsuranceOption / ChildSeatOption / SecondDriverOption / OutOfCityOption / RoofRackOption -
+ * ConcreteDecorator, BookingSystem - Client. Клас-раннер: situation4Decorator() у carsharing.Main.
  */
 package carsharing.task4_decorator;
