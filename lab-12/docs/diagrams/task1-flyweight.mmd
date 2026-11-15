@@ -1,0 +1,42 @@
+classDiagram
+direction TB
+
+class RouteMap {
+  -List~CarMarker~ markers
+  +addMarker(CarMarker marker) void
+  +getMarker(int index) CarMarker
+  +getMarkerCount() int
+}
+class CarMarker {
+  -String plate
+  -double latitude
+  -double longitude
+  -String time
+  -CarModel model
+  +getModel() CarModel
+  +describe() String
+}
+class CarModelFactory {
+  -Map~String, CarModel~ models
+  +getModel(String name, String icon, String characteristics, String photo) CarModel
+  +getModelCount() int
+}
+class CarModel {
+  -String name
+  -String icon
+  -String characteristics
+  -String photo
+  +getName() String
+  +getIcon() String
+  +getCharacteristics() String
+  +getPhoto() String
+}
+
+RouteMap "1" o--> "0..*" CarMarker : markers
+CarMarker "0..*" --> "1" CarModel : model
+CarModelFactory "1" *--> "0..*" CarModel : models (пул)
+
+note for RouteMap "Роль: Client<br>зберігає позначки"
+note for CarMarker "Роль: Context<br>лише зовнішній стан<br>(номер, координати, час)"
+note for CarModelFactory "Роль: FlyweightFactory<br>повертає наявну модель<br>або створює нову"
+note for CarModel "Роль: Flyweight<br>спільний незмінний стан<br>(назва, іконка, характеристики, фото)"

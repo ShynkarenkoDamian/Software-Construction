@@ -1,0 +1,41 @@
+classDiagram
+direction TB
+
+class ZoneAnalytics {
+  +printSummary(ZoneComponent zone) void
+}
+class ZoneComponent {
+  <<interface>>
+  +getName() String
+  +getCarCount() int
+  +getRevenue() int
+  +print(int level) void
+}
+class ParkingLot {
+  -String name
+  -int carCount
+  -int revenue
+  +getName() String
+  +getCarCount() int
+  +getRevenue() int
+  +print(int level) void
+}
+class Zone {
+  -String name
+  -List~ZoneComponent~ children
+  +add(ZoneComponent child) void
+  +getName() String
+  +getCarCount() int
+  +getRevenue() int
+  +print(int level) void
+}
+
+ZoneAnalytics ..> ZoneComponent : uses
+ParkingLot ..|> ZoneComponent
+Zone ..|> ZoneComponent
+Zone "1" o--> "0..*" ZoneComponent : children
+
+note for ZoneAnalytics "Роль: Client<br>працює лише з ZoneComponent"
+note for ZoneComponent "Роль: Component<br>спільний інтерфейс вузла"
+note for ParkingLot "Роль: Leaf<br>майданчик, без нащадків"
+note for Zone "Роль: Composite<br>місто, район, квартал, бізнес-центр;<br>рахує показники по нащадках"
