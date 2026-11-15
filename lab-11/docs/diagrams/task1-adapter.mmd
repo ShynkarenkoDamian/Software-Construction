@@ -1,0 +1,55 @@
+classDiagram
+direction TB
+
+class FleetMap {
+  -List~Telematics~ cars
+  +addCar(Telematics telematics) void
+  +render() void
+}
+class Telematics {
+  <<interface>>
+  +getCarId() String
+  +getLatitude() double
+  +getLongitude() double
+  +getFuelPercent() int
+}
+class LegacyTelematicsUnit {
+  -String carId
+  -double latitude
+  -double longitude
+  -int fuelPercent
+  +getCarId() String
+  +getLatitude() double
+  +getLongitude() double
+  +getFuelPercent() int
+}
+class VendorTelematicsAdapter {
+  -VendorTelematicsBlock block
+  -double tankCapacityLiters
+  +getCarId() String
+  +getLatitude() double
+  +getLongitude() double
+  +getFuelPercent() int
+  -dmsToDecimal(int[] dms)$ double
+}
+class VendorTelematicsBlock {
+  -String plate
+  -int[] latDms
+  -int[] lonDms
+  -double fuelLiters
+  +readPlate() String
+  +readLatDms() int[]
+  +readLonDms() int[]
+  +readFuelLiters() double
+}
+
+FleetMap "1" o--> "0..*" Telematics : cars
+LegacyTelematicsUnit ..|> Telematics
+VendorTelematicsAdapter ..|> Telematics
+VendorTelematicsAdapter "1" --> "1" VendorTelematicsBlock : block
+
+note for FleetMap "Роль: Client<br>працює лише з Telematics"
+note for Telematics "Роль: Target<br>власний інтерфейс карти (°, %)"
+note for VendorTelematicsAdapter "Роль: Adapter<br>єдине місце перетворення<br>ГМС→°, літри→%"
+note for VendorTelematicsBlock "Роль: Adaptee<br>чужий код (ГМС, літри)"
+note for LegacyTelematicsUnit "Старий блок: вже в потрібному<br>форматі, адаптер не потрібен"

@@ -1,0 +1,52 @@
+classDiagram
+direction LR
+
+class MobileApp {
+  -TripFacade tripFacade
+  +startTrip(String clientId, String carId) void
+}
+class Dispatcher {
+  -TripFacade tripFacade
+  +startTrip(String clientId, String carId) void
+}
+class TripFacade {
+  -DriverLicenseService license
+  -PaymentService payment
+  -CarReservationService reservation
+  -DoorLockService doorLock
+  -TelematicsActivator telematics
+  -TripInsuranceService insurance
+  +startTrip(String clientId, String carId) void
+}
+class DriverLicenseService {
+  +verify(String clientId) void
+}
+class PaymentService {
+  +holdFunds(String clientId) void
+}
+class CarReservationService {
+  +reserve(String carId, String clientId) void
+}
+class DoorLockService {
+  +unlock(String carId) void
+}
+class TelematicsActivator {
+  +activate(String carId) void
+}
+class TripInsuranceService {
+  +insure(String clientId, String carId) void
+}
+
+MobileApp "1" --> "1" TripFacade
+Dispatcher "1" --> "1" TripFacade
+TripFacade "1" --> "1" DriverLicenseService
+TripFacade "1" --> "1" PaymentService
+TripFacade "1" --> "1" CarReservationService
+TripFacade "1" --> "1" DoorLockService
+TripFacade "1" --> "1" TelematicsActivator
+TripFacade "1" --> "1" TripInsuranceService
+
+note for MobileApp "Роль: Client"
+note for Dispatcher "Роль: Client"
+note for TripFacade "Роль: Facade<br>вся послідовність початку<br>поїздки в одному місці"
+note for DoorLockService "Роль: Subsystem<br>доступна й окремо<br>(служба підтримки)"
