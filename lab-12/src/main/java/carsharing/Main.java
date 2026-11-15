@@ -8,6 +8,12 @@ import carsharing.task1_flyweight.RouteMap;
 import carsharing.task2_composite.ParkingLot;
 import carsharing.task2_composite.Zone;
 import carsharing.task2_composite.ZoneAnalytics;
+import carsharing.task3_bridge.AccountingChannel;
+import carsharing.task3_bridge.AppChannel;
+import carsharing.task3_bridge.EmailChannel;
+import carsharing.task3_bridge.MonthlyCorporateReport;
+import carsharing.task3_bridge.TelegramBotChannel;
+import carsharing.task3_bridge.TripReport;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
@@ -112,7 +118,15 @@ public class Main {
     /** Завдання 3: звіти для різних отримувачів (Bridge). */
     private static void situation3Bridge() {
         header("Завдання 3. Звіти для різних отримувачів (Bridge)");
-        // TODO (колега): змоделювати ситуацію, див. carsharing.task3_bridge.package-info
-        Log.log("Runner", "не реалізовано: точка розширення для Завдання 3");
+
+        Log.log("Runner", "1) звіт про поїздку в застосунок і на e-mail");
+        new TripReport(new AppChannel(), "Ткачук", "CE1234AA", 30, 189.00).send();
+        new TripReport(new EmailChannel(), "Ткачук", "CE1234AA", 30, 189.00).send();
+
+        Log.log("Runner", "2) корпоративний звіт у систему бухгалтерії");
+        new MonthlyCorporateReport(new AccountingChannel(), "ТОВ «Буковина-Транс»", "жовтень 2026", 42, 18750.00).send();
+
+        Log.log("Runner", "3) новий канал Telegram-бот (один новий клас) і звіт про поїздку через нього");
+        new TripReport(new TelegramBotChannel(), "Ткачук", "CE1234AA", 30, 189.00).send();
     }
 }
