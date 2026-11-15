@@ -1,0 +1,66 @@
+classDiagram
+direction TB
+
+class BookingSystem {
+  +checkout(Trip trip) void
+}
+class Trip {
+  <<interface>>
+  +getDescription() String
+  +getRatePerMinute() double
+  +getMinutes() int
+  +getCost() double
+}
+class StandardTrip {
+  -double BASE_RATE$
+  -String carId
+  -int minutes
+  +getDescription() String
+  +getRatePerMinute() double
+  +getMinutes() int
+}
+class TripOption {
+  <<abstract>>
+  -Trip wrapped
+  -String name
+  -double surcharge
+  #TripOption(Trip wrapped, String name, double surcharge)
+  +getDescription() String
+  +getRatePerMinute() double
+  +getMinutes() int
+}
+class FullInsuranceOption {
+  +FullInsuranceOption(Trip wrapped)
+}
+class ChildSeatOption {
+  +ChildSeatOption(Trip wrapped)
+}
+class SecondDriverOption {
+  +SecondDriverOption(Trip wrapped)
+}
+class OutOfCityOption {
+  +OutOfCityOption(Trip wrapped)
+}
+class RoofRackOption {
+  +RoofRackOption(Trip wrapped)
+}
+
+BookingSystem "1" --> "1" Trip : trip
+StandardTrip ..|> Trip
+TripOption ..|> Trip
+TripOption "1" o--> "1" Trip : wrapped
+FullInsuranceOption --|> TripOption
+ChildSeatOption --|> TripOption
+SecondDriverOption --|> TripOption
+OutOfCityOption --|> TripOption
+RoofRackOption --|> TripOption
+
+note for BookingSystem "Роль: Client<br>працює з Trip і не знає,<br>чи є на поїздці опції"
+note for Trip "Роль: Component<br>спільний інтерфейс поїздки"
+note for StandardTrip "Роль: ConcreteComponent<br>звичайна поїздка, базовий тариф"
+note for TripOption "Роль: Decorator<br>обгортає Trip і делегує йому виклики"
+note for FullInsuranceOption "Роль: ConcreteDecorator<br>+1.00 грн/хв"
+note for ChildSeatOption "Роль: ConcreteDecorator<br>+0.50 грн/хв"
+note for SecondDriverOption "Роль: ConcreteDecorator<br>+0.80 грн/хв"
+note for OutOfCityOption "Роль: ConcreteDecorator<br>+1.50 грн/хв"
+note for RoofRackOption "Роль: ConcreteDecorator<br>+0.70 грн/хв"

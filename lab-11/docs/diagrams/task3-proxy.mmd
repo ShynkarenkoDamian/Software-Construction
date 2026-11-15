@@ -1,0 +1,50 @@
+classDiagram
+direction TB
+
+class CarApp {
+  -CarControl car
+  +openDoors(String clientId) void
+}
+class CarControl {
+  <<interface>>
+  +openDoors(String clientId) void
+  +startEngine(String clientId) void
+  +honk(String clientId) void
+}
+class CarControlProxy {
+  -String carId
+  -CarControl server
+  -RentalRegistry rentals
+  -List~String~ journal
+  +openDoors(String clientId) void
+  +startEngine(String clientId) void
+  +honk(String clientId) void
+  +getJournal() List~String~
+  -allowed(String command, String clientId) boolean
+}
+class RemoteCarServer {
+  -String carId
+  -int requestCount
+  +openDoors(String clientId) void
+  +startEngine(String clientId) void
+  +honk(String clientId) void
+  +getRequestCount() int
+  -execute(String command, String clientId) void
+}
+class RentalRegistry {
+  -Map~String,String~ renters
+  +rent(String carId, String clientId) void
+  +isCurrentRenter(String carId, String clientId) boolean
+}
+
+CarApp "1" --> "1" CarControl : car
+CarControlProxy ..|> CarControl
+RemoteCarServer ..|> CarControl
+CarControlProxy "1" --> "1" CarControl : server
+CarControlProxy "1" --> "1" RentalRegistry : rentals
+
+note for CarApp "Роль: Client<br>працює лише з CarControl<br>і не знає про перевірки"
+note for CarControl "Роль: Subject<br>спільний інтерфейс<br>заступника й сервера"
+note for CarControlProxy "Роль: Proxy<br>перевіряє орендаря, веде журнал,<br>лише потім делегує серверу"
+note for RemoteCarServer "Роль: RealSubject<br>повільний віддалений сервер<br>з лімітом викликів"
+note for RentalRegistry "Допоміжний клас:<br>хто поточний орендар авто"
