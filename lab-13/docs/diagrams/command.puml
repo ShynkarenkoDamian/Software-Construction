@@ -1,0 +1,98 @@
+@startuml
+title ЛР13, Завдання 1: Command — віддалені команди авто
+skinparam classAttributeIconSize 0
+left to right direction
+
+interface Command <<Command>> {
+  + execute(): void
+  + undo(): void
+  + getCar(): Car
+  + describe(): String
+}
+
+class OpenDoorsCommand <<ConcreteCommand>> {
+  - car: Car
+  - before: boolean
+  + execute(): void
+  + undo(): void
+}
+class CloseDoorsCommand <<ConcreteCommand>> {
+  - car: Car
+  - before: boolean
+  + execute(): void
+  + undo(): void
+}
+class HazardLightsCommand <<ConcreteCommand>> {
+  - car: Car
+  - before: boolean
+  + execute(): void
+  + undo(): void
+}
+class BlockEngineCommand <<ConcreteCommand>> {
+  - car: Car
+  - before: boolean
+  + execute(): void
+  + undo(): void
+}
+
+class RemoteControl <<Invoker>> {
+  - pending: Map<Car, Deque<Command>>
+  - history: Deque<Command>
+  - journal: List<String>
+  + send(sender: String, command: Command): void
+  + carOnline(car: Car): void
+  + undoLast(): void
+  + printJournal(): void
+  - run(command: Command): void
+}
+
+class Car <<Receiver>> {
+  - plate: String
+  - online: boolean
+  - doorsOpen: boolean
+  - hazardOn: boolean
+  - engineBlocked: boolean
+  + setOnline(online: boolean): void
+  + setDoorsOpen(open: boolean): void
+  + setHazardOn(on: boolean): void
+  + setEngineBlocked(blocked: boolean): void
+}
+
+class Logger <<utility>> {
+  - {static} seconds: int
+  + {static} log(source: String, event: String): void
+  + {static} time(): String
+}
+
+class Main <<Client>> {
+  + {static} main(args: String[]): void
+  ~ {static} scenarioRemoteCommands(): void
+  ~ {static} scenarioTripAccess(): void
+}
+
+OpenDoorsCommand ..|> Command
+CloseDoorsCommand ..|> Command
+HazardLightsCommand ..|> Command
+BlockEngineCommand ..|> Command
+
+OpenDoorsCommand --> "1" Car : car
+CloseDoorsCommand --> "1" Car : car
+HazardLightsCommand --> "1" Car : car
+BlockEngineCommand --> "1" Car : car
+
+RemoteControl o--> "0..*" Command : pending, history
+RemoteControl ..> Car
+RemoteControl ..> Logger
+Car ..> Logger
+
+Main ..> RemoteControl
+Main ..> Car
+Main ..> OpenDoorsCommand : <<create>>
+Main ..> CloseDoorsCommand : <<create>>
+Main ..> HazardLightsCommand : <<create>>
+Main ..> BlockEngineCommand : <<create>>
+
+note bottom of Logger
+  Усі класи також пишуть у журнал через Logger
+end note
+@enduml
