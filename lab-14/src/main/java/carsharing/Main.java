@@ -1,5 +1,12 @@
 package carsharing;
 
+import carsharing.dispatch.CarWashService;
+import carsharing.dispatch.ClientApp;
+import carsharing.dispatch.DispatchCenter;
+import carsharing.dispatch.FleetMap;
+import carsharing.dispatch.MaintenanceService;
+import carsharing.dispatch.SupportService;
+import carsharing.dispatch.TowService;
 import carsharing.model.Car;
 import carsharing.model.CarEventType;
 import carsharing.observer.Client;
@@ -46,10 +53,30 @@ public class Main {
         car.publish(CarEventType.LOW_BATTERY, "5%");
     }
 
-    /** Завдання 2 (Mediator, «Диспетчерська служба») — виконує колега. */
+    /** Завдання 2: диспетчерська служба (Mediator). */
     static void scenarioDispatch() {
-        // TODO (колега): реалізувати посередника і служби в пакеті carsharing.dispatch
-        //  і відтворити демонстраційний сценарій із завдання.
-        Logger.log("Runner", "=== Ситуація 2: диспетчерська служба — буде виконано окремо ===");
+        Logger.log("Runner", "=== Ситуація 2: диспетчерська служба ===");
+        DispatchCenter center = new DispatchCenter();
+        ClientApp clientApp = new ClientApp(center, "Іван");
+        FleetMap fleetMap = new FleetMap(center);
+        TowService towService = new TowService(center);
+        MaintenanceService maintenance = new MaintenanceService(center);
+        SupportService support = new SupportService(center);
+
+        center.register(clientApp);
+        center.register(fleetMap);
+        center.register(towService);
+        center.register(support);
+
+        Logger.log("Runner", "--- Служба обслуговування повідомляє про завершення ремонту ---");
+        maintenance.finishRepair("AA1234BB");
+
+        Logger.log("Runner", "--- Клієнт повідомляє про ДТП ---");
+        clientApp.reportAccident("AA1234BB");
+
+        Logger.log("Runner", "--- Додається служба мийки; нове ДТП, після евакуації авто йде на мийку ---");
+        center.register(new CarWashService(center));
+        clientApp.reportAccident("AA5678CC");
+        towService.completeEvacuation("AA5678CC");
     }
 }
