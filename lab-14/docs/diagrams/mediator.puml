@@ -1,0 +1,88 @@
+@startuml
+title ЛР14, Завдання 2: Mediator — диспетчерська служба
+skinparam classAttributeIconSize 0
+
+interface DispatchMediator <<Mediator>> {
+  + reportEvent(sender: DispatchService, type: DispatchEventType, carPlate: String): void
+}
+
+class DispatchCenter <<ConcreteMediator>> {
+  - clientApp: ClientApp
+  - fleetMap: FleetMap
+  - towService: TowService
+  - supportService: SupportService
+  - carWash: CarWashService
+  + register(service: DispatchService): void
+  + reportEvent(sender: DispatchService, type: DispatchEventType, carPlate: String): void
+}
+
+abstract class DispatchService <<Colleague>> {
+  # mediator: DispatchMediator
+  - name: String
+  # DispatchService(mediator: DispatchMediator, name: String)
+  + toString(): String
+}
+
+class ClientApp <<ConcreteColleague>> {
+  + reportAccident(carPlate: String): void
+  + finishTrip(carPlate: String): void
+}
+class FleetMap <<ConcreteColleague>> {
+  + removeCar(carPlate: String): void
+  + returnCar(carPlate: String): void
+}
+class TowService <<ConcreteColleague>> {
+  + callTowTruck(carPlate: String): void
+  + completeEvacuation(carPlate: String): void
+}
+class MaintenanceService <<ConcreteColleague>> {
+  + finishRepair(carPlate: String): void
+}
+class SupportService <<ConcreteColleague>> {
+  + handleCase(carPlate: String): void
+}
+class CarWashService <<ConcreteColleague, нова служба>> {
+  + washCar(carPlate: String): void
+}
+
+enum DispatchEventType <<enumeration>> {
+  REPAIR_FINISHED
+  ACCIDENT_REPORTED
+  EVACUATION_COMPLETED
+  - label: String
+  + getLabel(): String
+}
+
+class Main <<Client>> {
+  + {static} main(args: String[]): void
+  ~ {static} scenarioCarEvents(): void
+  ~ {static} scenarioDispatch(): void
+}
+
+DispatchCenter ..|> DispatchMediator
+ClientApp --|> DispatchService
+FleetMap --|> DispatchService
+TowService --|> DispatchService
+MaintenanceService --|> DispatchService
+SupportService --|> DispatchService
+CarWashService --|> DispatchService
+
+DispatchService "*" --> "1" DispatchMediator : mediator
+
+DispatchCenter o--> "0..1" ClientApp
+DispatchCenter o--> "0..1" FleetMap
+DispatchCenter o--> "0..1" TowService
+DispatchCenter o--> "0..1" SupportService
+DispatchCenter o--> "0..1" CarWashService
+
+DispatchMediator ..> DispatchEventType
+DispatchMediator ..> DispatchService
+Main ..> DispatchCenter
+Main ..> DispatchService
+
+note bottom of MaintenanceService
+  Служби-колеги не знають одна про одну:
+  про свої події повідомляють лише
+  DispatchMediator.reportEvent(...)
+end note
+@enduml
