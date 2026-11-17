@@ -1,0 +1,79 @@
+@startuml
+title ЛР14, Завдання 1: Observer — події авто
+skinparam classAttributeIconSize 0
+left to right direction
+
+interface CarEventObserver <<Observer>> {
+  + onEvent(event: CarEvent): void
+}
+
+class Client <<ConcreteObserver>> {
+  - name: String
+  + onEvent(event: CarEvent): void
+}
+class FleetService <<ConcreteObserver>> {
+  + onEvent(event: CarEvent): void
+}
+class Dispatcher <<ConcreteObserver>> {
+  + onEvent(event: CarEvent): void
+}
+class InsuranceCompany <<ConcreteObserver>> {
+  + onEvent(event: CarEvent): void
+}
+
+class Car <<Subject>> {
+  - plate: String
+  - observers: List<CarEventObserver>
+  + subscribe(observer: CarEventObserver): void
+  + unsubscribe(observer: CarEventObserver): void
+  + publish(type: CarEventType, details: String): void
+}
+
+class "CarEvent" as CarEvent <<record>> {
+  + type: CarEventType
+  + carPlate: String
+  + details: String
+}
+
+enum CarEventType <<enumeration>> {
+  LOW_BATTERY
+  CRASH
+  OUT_OF_ZONE
+  TRIP_FINISHED
+  - label: String
+  + getLabel(): String
+}
+
+class Logger <<utility>> {
+  - {static} seconds: int
+  + {static} log(source: String, event: String): void
+  + {static} time(): String
+}
+
+class Main <<Client>> {
+  + {static} main(args: String[]): void
+  ~ {static} scenarioCarEvents(): void
+  ~ {static} scenarioDispatch(): void
+}
+
+Client ..|> CarEventObserver
+FleetService ..|> CarEventObserver
+Dispatcher ..|> CarEventObserver
+InsuranceCompany ..|> CarEventObserver
+
+Car o--> "0..*" CarEventObserver : observers
+Car ..> CarEvent : <<create>>
+CarEventObserver ..> CarEvent
+CarEvent --> "1" CarEventType : type
+
+Car ..> Logger
+Main ..> Car
+Main ..> Client
+Main ..> FleetService
+Main ..> Dispatcher
+Main ..> InsuranceCompany
+
+note bottom of Logger
+  Спостерігачі також пишуть у журнал через Logger
+end note
+@enduml
