@@ -1,7 +1,6 @@
 /**
- * ТОЧКА РОЗШИРЕННЯ для Завдання 2 (Chain of Responsibility, «Допуск клієнта до поїздки»).
- * Сюди колега додає свої класи: обробник-перевірку, конкретні перевірки та клієнта.
- * Для виводу в журнал використовувати carsharing.util.Logger.
- * Запуск сценарію — метод Main.scenarioTripAccess().
+ * Завдання 2 (Chain of Responsibility, «Допуск клієнта до поїздки»).
+ * AccessCheck — Handler, *Check — ConcreteHandler, TripAccessService — збирає ланцюги й приймає запити,
+ * TripRequest — запит, що рухається ланцюгом. Запуск сценарію — Main.scenarioTripAccess().
  */
 package carsharing.access;
