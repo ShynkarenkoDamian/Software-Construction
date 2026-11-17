@@ -1,0 +1,113 @@
+@startuml
+title ЛР13, Завдання 2: Chain of Responsibility — допуск клієнта до поїздки
+skinparam classAttributeIconSize 0
+
+abstract class AccessCheck <<Handler>> {
+  - next: AccessCheck
+  + setNext(next: AccessCheck): void
+  + {final} handle(request: TripRequest): AccessResult
+  # {abstract} verify(request: TripRequest): String
+}
+
+class DriverLicenseCheck <<ConcreteHandler>> {
+  # verify(request: TripRequest): String
+}
+class DrivingExperienceCheck <<ConcreteHandler>> {
+  - minYears: int
+  # verify(request: TripRequest): String
+}
+class DebtCheck <<ConcreteHandler>> {
+  # verify(request: TripRequest): String
+}
+class FundsCheck <<ConcreteHandler>> {
+  # verify(request: TripRequest): String
+}
+class BanCheck <<ConcreteHandler>> {
+  # verify(request: TripRequest): String
+}
+
+class TripAccessService <<Chain builder / entry point>> {
+  - chains: Map<CarClass, AccessCheck>
+  + configure(carClass: CarClass, checks: AccessCheck...): void
+  + requestAccess(request: TripRequest): AccessResult
+}
+
+class TripRequest <<Request>> {
+  - customer: Customer
+  - carPlate: String
+  - carClass: CarClass
+  - requiredAmount: int
+  + getCustomer(): Customer
+  + getCarClass(): CarClass
+  + getRequiredAmount(): int
+  + describe(): String
+}
+
+class Customer <<Request data>> {
+  - name: String
+  - licenseVerified: boolean
+  - drivingExperienceYears: int
+  - debt: int
+  - cardBalance: int
+  - banned: boolean
+}
+
+enum CarClass <<Chain key>> {
+  STANDARD
+  PREMIUM
+  + getLabel(): String
+}
+
+class AccessResult <<Result (record)>> {
+  - granted: boolean
+  - stoppedBy: String
+  - reason: String
+  + {static} granted(lastCheck: String): AccessResult
+  + {static} denied(check: String, reason: String): AccessResult
+}
+
+class Logger <<utility>> {
+  - {static} seconds: int
+  + {static} log(source: String, event: String): void
+  + {static} time(): String
+}
+
+class Main <<Client>> {
+  + {static} main(args: String[]): void
+  ~ {static} scenarioTripAccess(): void
+}
+
+DriverLicenseCheck --|> AccessCheck
+DrivingExperienceCheck --|> AccessCheck
+DebtCheck --|> AccessCheck
+FundsCheck --|> AccessCheck
+BanCheck --|> AccessCheck
+
+AccessCheck "0..1" --> "0..1" AccessCheck : next
+TripAccessService o--> "0..*" AccessCheck : chains (перша ланка\nдля кожного CarClass)
+TripAccessService --> "0..*" CarClass : ключ
+TripRequest --> "1" Customer : customer
+TripRequest --> "1" CarClass : carClass
+
+AccessCheck ..> TripRequest
+AccessCheck ..> AccessResult
+AccessCheck ..> Logger
+TripAccessService ..> TripRequest
+TripAccessService ..> AccessResult
+TripAccessService ..> Logger
+
+Main ..> TripAccessService
+Main ..> TripRequest : <<create>>
+Main ..> Customer : <<create>>
+Main ..> DriverLicenseCheck : <<create>>
+Main ..> DrivingExperienceCheck : <<create>>
+Main ..> DebtCheck : <<create>>
+Main ..> FundsCheck : <<create>>
+Main ..> BanCheck : <<create>>
+
+note bottom of AccessCheck
+  handle(): записує в журнал, що ланка отримала запит;
+  викликає verify(); якщо причина є — зупиняє ланцюг,
+  інакше передає запит next.handle(request)
+end note
+@enduml
