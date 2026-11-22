@@ -1,0 +1,87 @@
+---
+title: "ЛР15, Завдання 3 — State: стан авто"
+---
+classDiagram
+    direction TB
+
+    class SharedCar {
+        <<Context>>
+        -String plate
+        -CarState state
+        -String currentClient
+        +reserve(String client)
+        +unlock(String client)
+        +pause()
+        +endTrip()
+        +tick(int minutes)
+        +sendToMaintenance()
+        +returnFromMaintenance()
+        +setState(CarState newState)
+        +refuse(String operation, String reason)
+        +getCurrentClient() String
+        +setCurrentClient(String client)
+        +source() String
+    }
+    class CarState {
+        <<interface, State>>
+        +title() String
+        +reserve(SharedCar car, String client)
+        +unlock(SharedCar car, String client)
+        +pause(SharedCar car)
+        +endTrip(SharedCar car)
+        +tick(SharedCar car, int minutes)
+        +sendToMaintenance(SharedCar car)
+        +returnFromMaintenance(SharedCar car)
+    }
+    class AvailableState {
+        <<ConcreteState>>
+        +title() String
+        +reserve(SharedCar car, String client)
+        +sendToMaintenance(SharedCar car)
+    }
+    class ReservedState {
+        <<ConcreteState>>
+        +int RESERVATION_MINUTES$
+        -int waitedMinutes
+        +title() String
+        +unlock(SharedCar car, String client)
+        +tick(SharedCar car, int minutes)
+    }
+    class InTripState {
+        <<ConcreteState>>
+        +title() String
+        +pause(SharedCar car)
+        +endTrip(SharedCar car)
+    }
+    class PausedState {
+        <<ConcreteState>>
+        +title() String
+        +unlock(SharedCar car, String client)
+        +endTrip(SharedCar car)
+    }
+    class MaintenanceState {
+        <<ConcreteState>>
+        +title() String
+        +reserve(SharedCar car, String client)
+        +returnFromMaintenance(SharedCar car)
+    }
+
+    SharedCar "1" o-- "1" CarState : поточний стан
+    CarState <|.. AvailableState
+    CarState <|.. ReservedState
+    CarState <|.. InTripState
+    CarState <|.. PausedState
+    CarState <|.. MaintenanceState
+
+    AvailableState ..> ReservedState : створює (reserve)
+    AvailableState ..> MaintenanceState : створює (sendToMaintenance)
+    ReservedState ..> InTripState : створює (unlock)
+    ReservedState ..> AvailableState : створює (20 хв)
+    InTripState ..> PausedState : створює (pause)
+    InTripState ..> AvailableState : створює (endTrip)
+    PausedState ..> InTripState : створює (unlock)
+    MaintenanceState ..> AvailableState : створює (повернення)
+
+    note for SharedCar "Контекст не має if/switch за статусом:<br/>кожну операцію делегує state.<br/>Переходи виконують стани через setState()"
+    note for CarState "Методи за замовчуванням (default) —<br/>зрозуміла відмова. Стан перевизначає<br/>лише дозволені в ньому операції"
+    note for ReservedState "Бронювання діє 20 хв: tick() накопичує<br/>час, після 20 хв — перехід в «доступне»"
