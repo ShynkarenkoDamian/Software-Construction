@@ -1,0 +1,98 @@
+---
+title: "ЛР16, Завдання 3 — Iterator: обхід авто для обслуговування"
+---
+classDiagram
+    direction LR
+
+    class Iterator~ParkedCar~ {
+        <<interface, Iterator>>
+        +hasNext() boolean
+        +next() ParkedCar
+    }
+    class Iterable~ParkedCar~ {
+        <<interface, Aggregate>>
+        +iterator() Iterator~ParkedCar~
+    }
+    class Zone {
+        <<ConcreteAggregate>>
+        -String name
+        -List~ParkingLot~ lots
+        -List~Zone~ subZones
+        +addLot(ParkingLot lot)
+        +addSubZone(Zone zone)
+        +getName() String
+        +iterator() Iterator~ParkedCar~
+        +lowChargeRouteIterator(int maxChargePercent) Iterator~ParkedCar~
+        +idleIterator(int minIdleHours) Iterator~ParkedCar~
+        ~lots() List~ParkingLot~
+        ~subZones() List~Zone~
+        ~collectLots(List~ParkingLot~ target)
+        +logState(String stage)
+    }
+    class ParkingLot {
+        -String name
+        -int routeOrder
+        -List~ParkedCar~ cars
+        +addCar(ParkedCar car)
+        +getName() String
+        +getRouteOrder() int
+        ~cars() List~ParkedCar~
+    }
+    class ParkedCar {
+        -String plate
+        -int chargePercent
+        -int idleHours
+        +getPlate() String
+        +getChargePercent() int
+        +getIdleHours() int
+    }
+    class ZoneCarIterator {
+        <<ConcreteIterator>>
+        -Deque~Zone~ pendingZones
+        -Iterator~ParkingLot~ lots
+        -Iterator~ParkedCar~ cars
+        +hasNext() boolean
+        +next() ParkedCar
+    }
+    class FilteredCarIterator {
+        <<ConcreteIterator, abstract>>
+        -Iterator~ParkedCar~ source
+        -ParkedCar nextCar
+        #accepts(ParkedCar car)* boolean
+        +hasNext() boolean
+        +next() ParkedCar
+    }
+    class LowChargeRouteIterator {
+        <<ConcreteIterator>>
+        -int maxChargePercent
+        #accepts(ParkedCar car) boolean
+        -carsInRouteOrder(Zone zone)$ Iterator~ParkedCar~
+    }
+    class IdleCarIterator {
+        <<ConcreteIterator>>
+        -int minIdleHours
+        #accepts(ParkedCar car) boolean
+    }
+
+    Iterable~ParkedCar~ <|.. Zone
+    Iterator~ParkedCar~ <|.. ZoneCarIterator
+    Iterator~ParkedCar~ <|.. FilteredCarIterator
+    FilteredCarIterator <|-- LowChargeRouteIterator
+    FilteredCarIterator <|-- IdleCarIterator
+
+    Zone "1" *-- "0..*" ParkingLot : майданчики
+    Zone "1" o-- "0..*" Zone : subZones
+    ParkingLot "1" o-- "0..*" ParkedCar : авто
+
+    Zone ..> ZoneCarIterator : створює
+    Zone ..> LowChargeRouteIterator : створює
+    Zone ..> IdleCarIterator : створює
+    ZoneCarIterator ..> Zone : читає структуру
+    LowChargeRouteIterator ..> Zone : читає структуру
+    IdleCarIterator ..> ZoneCarIterator : джерело авто
+
+    note for Zone "Колекція віддає ітератор і ховає свою структуру:<br/>lots(), subZones(), collectLots() — package-private"
+    note for ZoneCarIterator "Усі авто зони включно з вкладеними (в глибину);<br/>власний стан дає незалежні одночасні обходи"
+    note for LowChargeRouteIterator "Службі обслуговування: заряд < порогу<br/>в порядку маршруту (routeOrder майданчиків)"
+    note for IdleCarIterator "Аналітиці: авто, що простоюють понад добу"
+    note for FilteredCarIterator "Шаблонний метод: фільтр accepts()<br/>задають нащадки"
