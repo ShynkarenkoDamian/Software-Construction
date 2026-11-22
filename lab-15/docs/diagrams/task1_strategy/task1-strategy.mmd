@@ -1,0 +1,75 @@
+---
+title: "ЛР15, Завдання 1 — Strategy: тарифи поїздки"
+---
+classDiagram
+    direction LR
+
+    class Tariff {
+        <<Strategy>>
+        +name() String
+        +calculate(Trip trip) double
+    }
+    class PerMinuteTariff {
+        <<ConcreteStrategy>>
+        -double ratePerMinute
+        +name() String
+        +calculate(Trip trip) double
+    }
+    class PerKmTariff {
+        <<ConcreteStrategy>>
+        -double ratePerKm
+        +name() String
+        +calculate(Trip trip) double
+    }
+    class CombinedTariff {
+        <<ConcreteStrategy>>
+        -double ratePerMinute
+        -double ratePerKm
+        +name() String
+        +calculate(Trip trip) double
+    }
+    class CorporateFixedTariff {
+        <<ConcreteStrategy>>
+        -double fixedPrice
+        +name() String
+        +calculate(Trip trip) double
+    }
+    class NightTariff {
+        <<ConcreteStrategy>>
+        -double ratePerMinute
+        -double ratePerKm
+        +name() String
+        +calculate(Trip trip) double
+    }
+    class Client {
+        -String name
+        -Tariff tariff
+        +getName() String
+        +getTariff() Tariff
+        +setTariff(Tariff newTariff)
+    }
+    class Trip {
+        <<Context>>
+        -Client client
+        -int minutes
+        -double km
+        -double peakCoefficient
+        +getMinutes() int
+        +getKm() double
+        +calculateCost() double
+    }
+
+    Tariff <|.. PerMinuteTariff
+    Tariff <|.. PerKmTariff
+    Tariff <|.. CombinedTariff
+    Tariff <|.. CorporateFixedTariff
+    Tariff <|.. NightTariff
+
+    Client "1" o-- "1" Tariff : обраний тариф
+    Trip "*" --> "1" Client : поїздка клієнта
+    Trip ..> Tariff : делегує розрахунок
+    Tariff ..> Trip : параметр calculate
+
+    note for Tariff "Strategy: спільний інтерфейс<br/>всіх тарифів"
+    note for Trip "Context: формул не містить,<br/>делегує calculate() тарифу клієнта<br/>і множить на коефіцієнт години пік"
+    note for NightTariff "Додано одним класом:<br/>Trip, Client та інші тарифи<br/>не змінювались"

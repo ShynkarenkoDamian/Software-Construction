@@ -1,0 +1,73 @@
+---
+title: "ЛР15, Завдання 2 — Template Method: огляд авто"
+---
+classDiagram
+    direction TB
+
+    class CarInspection {
+        <<AbstractClass>>
+        +inspect(Car car)
+        -exteriorInspection(Car car)
+        -interiorCheck(Car car)
+        -returnToAvailable(Car car)
+        #wash(Car car)
+        #sendForEnergy(Car car)
+        #checkEnergy(Car car) boolean*
+        #technicalCheck(Car car)*
+        #source() String
+    }
+    class PetrolCarInspection {
+        <<ConcreteClass>>
+        -int MIN_FUEL_PERCENT$
+        #wash(Car car)
+        #checkEnergy(Car car) boolean
+        #technicalCheck(Car car)
+    }
+    class HybridCarInspection {
+        <<ConcreteClass>>
+        -int MIN_ENERGY_PERCENT$
+        #checkEnergy(Car car) boolean
+        #technicalCheck(Car car)
+    }
+    class ElectricCarInspection {
+        <<ConcreteClass>>
+        -int MIN_CHARGE_PERCENT$
+        #checkEnergy(Car car) boolean
+        #technicalCheck(Car car)
+        #sendForEnergy(Car car)
+    }
+    class GasCarInspection {
+        <<ConcreteClass>>
+        -int MIN_GAS_PERCENT$
+        #checkEnergy(Car car) boolean
+        #technicalCheck(Car car)
+    }
+    class Car {
+        -String plate
+        -int energyPercent
+        -CarStatus status
+        +getPlate() String
+        +getEnergyPercent() int
+        +getStatus() CarStatus
+        +setStatus(CarStatus status)
+    }
+    class CarStatus {
+        <<enumeration>>
+        RETURNED_FROM_TRIP
+        AVAILABLE
+        SENT_FOR_ENERGY
+    }
+
+    CarInspection <|-- PetrolCarInspection
+    CarInspection <|-- HybridCarInspection
+    CarInspection <|-- ElectricCarInspection
+    CarInspection <|-- GasCarInspection
+
+    CarInspection ..> Car : оглядає
+    Car "1" --> "1" CarStatus : статус
+
+    note for CarInspection "inspect() — final-метод-шаблон.<br/>Порядок: 1 зовнішній огляд, 2 салон,<br/>мийка (hook), 3 енергія, 4 техперевірка,<br/>5 повернення в доступні<br/>або sendForEnergy (hook)"
+    note for ElectricCarInspection "Перевизначає hook sendForEnergy:<br/>авто йде на зарядку"
+    note for PetrolCarInspection "Перевизначає hook wash:<br/>мийка виконується"
+    note for GasCarInspection "Додано одним класом,<br/>інші класи не змінювались"
+    note for Car "Дані для огляду,<br/>не є учасником шаблону"
