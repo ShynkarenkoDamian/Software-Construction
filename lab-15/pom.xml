@@ -8,7 +8,7 @@
     <artifactId>lab15-strategy-template-method</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
-    <name>ЛР15: Strategy, Template Method (Каршерінг «Міськавто»)</name>
+    <name>ЛР15: Strategy, State, Template Method (Каршерінг «Міськавто»)</name>
 
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
