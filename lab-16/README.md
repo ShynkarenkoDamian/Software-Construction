@@ -9,7 +9,7 @@
 |---|---|---|---|---|---|
 | 1 | Операції над парком | Visitor | `task1_visitor` | `docs/diagrams/task1_visitor/` | я |
 | 2 | Налаштування авто для клієнта | Memento | `task2_memento` | `docs/diagrams/task2_memento/` | я |
-| 3 | Обхід авто для обслуговування | Iterator | `task3_iterator` | `docs/diagrams/task3_iterator/` | колега |
+| 3 | Обхід авто для обслуговування | Iterator | `task3_iterator` | `docs/diagrams/task3_iterator/` | я |
 
 Теорія, принципи, приклади й опис рішень — у [`docs/THEORY.md`](docs/THEORY.md).
 
@@ -25,7 +25,7 @@ lab16-visitor-memento/
 │   └── diagrams/                         діаграми класів (Mermaid: .mmd + .svg, .png, .pdf)
 │       ├── task1_visitor/                task1-visitor.*
 │       ├── task2_memento/                task2-memento.*
-│       └── task3_iterator/               (колега)
+│       └── task3_iterator/               task3-iterator.*
 └── src/main/java/ua/miskavto/lab16/
     ├── Main.java                         точка входу
     ├── ScenarioRunner.java               окремий метод на кожну ситуацію
@@ -35,7 +35,8 @@ lab16-visitor-memento/
     │                                     Co2EmissionsVisitor, Vehicle, PetrolCar, HybridCar,
     │                                     ElectricCar, Minibus, Fleet
     ├── task2_memento/                    Car (з вкладеними Snapshot і SettingsState), ClientProfile
-    └── task3_iterator/                   (колега) package-info.java
+    └── task3_iterator/                   Zone, ParkingLot, ParkedCar, ZoneCarIterator,
+                                          FilteredCarIterator, LowChargeRouteIterator, IdleCarIterator
 ```
 
 ## Запуск
