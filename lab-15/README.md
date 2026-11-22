@@ -25,7 +25,7 @@ lab15-strategy-template-method/
 │   └── diagrams/                         діаграми класів (Mermaid: .mmd + .svg, .png, .pdf)
 │       ├── task1_strategy/               task1-strategy.*
 │       ├── task2_template_method/        task2-template-method.*
-│       └── task3_state/                  (колега)
+│       └── task3_state/                  task3-state.*
 └── src/main/java/ua/miskavto/lab15/
     ├── Main.java                         точка входу
     ├── ScenarioRunner.java               окремий метод на кожну ситуацію
@@ -35,7 +35,8 @@ lab15-strategy-template-method/
     │                                     CorporateFixedTariff, NightTariff, Client, Trip
     ├── task2_template_method/            CarInspection, PetrolCarInspection, HybridCarInspection,
     │                                     ElectricCarInspection, GasCarInspection, Car, CarStatus
-    └── task3_state/                      (колега) package-info.java
+    └── task3_state/                      CarState, SharedCar, AvailableState, ReservedState,
+                                          InTripState, PausedState, MaintenanceState
 ```
 
 ## Запуск
