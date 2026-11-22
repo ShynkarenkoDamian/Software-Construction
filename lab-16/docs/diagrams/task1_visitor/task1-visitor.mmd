@@ -1,0 +1,104 @@
+---
+title: "ЛР16, Завдання 1 — Visitor: операції над парком"
+---
+classDiagram
+    direction LR
+
+    class FleetVisitor {
+        <<Visitor>>
+        +visit(PetrolCar car)
+        +visit(HybridCar car)
+        +visit(ElectricCar car)
+        +visit(Minibus minibus)
+        +onFinish()
+    }
+    class InsuranceVisitor {
+        <<ConcreteVisitor>>
+        -double total
+        +visit(PetrolCar car)
+        +visit(HybridCar car)
+        +visit(ElectricCar car)
+        +visit(Minibus minibus)
+        +onFinish()
+    }
+    class MaintenanceVisitor {
+        <<ConcreteVisitor>>
+        -int planned
+        +visit(PetrolCar car)
+        +visit(HybridCar car)
+        +visit(ElectricCar car)
+        +visit(Minibus minibus)
+        +onFinish()
+    }
+    class Co2EmissionsVisitor {
+        <<ConcreteVisitor>>
+        -double totalKg
+        +visit(PetrolCar car)
+        +visit(HybridCar car)
+        +visit(ElectricCar car)
+        +visit(Minibus minibus)
+        +onFinish()
+    }
+    class Vehicle {
+        <<Element>>
+        -String plate
+        -double value
+        -int mileageKm
+        -int monthlyKm
+        +getPlate() String
+        +getValue() double
+        +getMileageKm() int
+        +getMonthlyKm() int
+        +typeName() String*
+        +accept(FleetVisitor visitor)*
+    }
+    class PetrolCar {
+        <<ConcreteElement>>
+        +typeName() String
+        +accept(FleetVisitor visitor)
+    }
+    class HybridCar {
+        <<ConcreteElement>>
+        +typeName() String
+        +accept(FleetVisitor visitor)
+    }
+    class ElectricCar {
+        <<ConcreteElement>>
+        +typeName() String
+        +accept(FleetVisitor visitor)
+    }
+    class Minibus {
+        <<ConcreteElement>>
+        -int seats
+        +getSeats() int
+        +typeName() String
+        +accept(FleetVisitor visitor)
+    }
+    class Fleet {
+        <<ObjectStructure>>
+        -List~Vehicle~ vehicles
+        +add(Vehicle vehicle)
+        +accept(FleetVisitor visitor)
+        +logState(String stage)
+    }
+
+    FleetVisitor <|.. InsuranceVisitor
+    FleetVisitor <|.. MaintenanceVisitor
+    FleetVisitor <|.. Co2EmissionsVisitor
+
+    Vehicle <|-- PetrolCar
+    Vehicle <|-- HybridCar
+    Vehicle <|-- ElectricCar
+    Vehicle <|-- Minibus
+
+    Fleet "1" o-- "0..*" Vehicle : парк
+    Fleet ..> FleetVisitor : приймає візитор
+    Vehicle ..> FleetVisitor : accept викликає visit(this)
+    FleetVisitor ..> PetrolCar : visit
+    FleetVisitor ..> HybridCar : visit
+    FleetVisitor ..> ElectricCar : visit
+    FleetVisitor ..> Minibus : visit
+
+    note for Co2EmissionsVisitor "Нова операція додана одним класом,<br/>класи авто не змінювались"
+    note for Fleet "Виконує операцію над усім<br/>парком одним проходом"
+    note for FleetVisitor "Інтерфейс: окремий visit()<br/>для кожного типу авто"

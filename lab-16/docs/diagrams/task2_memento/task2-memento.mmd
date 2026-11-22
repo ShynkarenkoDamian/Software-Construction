@@ -1,0 +1,57 @@
+---
+title: "ЛР16, Завдання 2 — Memento: налаштування авто"
+---
+classDiagram
+    direction TB
+
+    class Car {
+        <<Originator>>
+        -String plate
+        -String model
+        -int seatPosition
+        -int mirrorAngle
+        -double climateTemperature
+        -int volume
+        -String radioStation
+        +getPlate() String
+        +getModel() String
+        +setSeatPosition(int seatPosition)
+        +setMirrorAngle(int mirrorAngle)
+        +setClimateTemperature(double climateTemperature)
+        +setMultimedia(int volume, String radioStation)
+        +describe() String
+        +save() Snapshot
+        +restore(Snapshot snapshot) boolean
+    }
+    class Snapshot {
+        <<Memento>>
+        +getModel() String
+    }
+    class SettingsState {
+        <<ConcreteMemento>>
+        -String model
+        -int seatPosition
+        -int mirrorAngle
+        -double climateTemperature
+        -int volume
+        -String radioStation
+        +getModel() String
+    }
+    class ClientProfile {
+        <<Caretaker>>
+        -String clientName
+        -Map~String, Snapshot~ snapshots
+        +save(String name, Car car)
+        +restore(String name, Car car) boolean
+    }
+
+    Snapshot <|.. SettingsState
+    Car ..> SettingsState : створює і читає
+    Car ..> Snapshot : повертає save, приймає restore
+    ClientProfile "1" o-- "0..*" Snapshot : зберігає за іменем
+    ClientProfile ..> Car : викликає save і restore
+
+    note for Snapshot "Вузький інтерфейс: зовні видно<br/>лише модель, вміст недоступний"
+    note for SettingsState "Вкладений private static клас у Car:<br/>поля бачить лише Car"
+    note for ClientProfile "Тримає знімки, не читає<br/>і не змінює їхній вміст"
+    note for Car "restore() відмовляє, якщо модель не збігається<br/>зі знімком; для іншого авто тієї ж моделі працює"
