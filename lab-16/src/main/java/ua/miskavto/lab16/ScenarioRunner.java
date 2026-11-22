@@ -11,12 +11,15 @@ import ua.miskavto.lab16.task1_visitor.InsuranceVisitor;
 import ua.miskavto.lab16.task1_visitor.MaintenanceVisitor;
 import ua.miskavto.lab16.task1_visitor.Minibus;
 import ua.miskavto.lab16.task1_visitor.PetrolCar;
+import ua.miskavto.lab16.task3_iterator.ParkedCar;
+import ua.miskavto.lab16.task3_iterator.ParkingLot;
+import ua.miskavto.lab16.task3_iterator.Zone;
 
-/**
- * Раннер: окремий метод для кожної ситуації.
- * Завдання 3 (Iterator) виконує колега: його код у пакеті task3_iterator, а метод situation3Iterator()
- * додається сюди (і викликається з Main).
- */
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+/** Раннер: окремий метод для кожної ситуації. */
 public class ScenarioRunner {
 
     /** Завдання 1 (Visitor): операції над парком. */
@@ -80,5 +83,104 @@ public class ScenarioRunner {
         Log.log(otherModel.getPlate(), "Стан до відновлення: " + otherModel.describe());
         profile.restore("основні", otherModel);
         Log.log(otherModel.getPlate(), "Стан після спроби: " + otherModel.describe());
+    }
+
+    /** Завдання 3 (Iterator): обхід авто для обслуговування. */
+    public void situation3Iterator() {
+        Log.section("Ситуація 3. Обхід авто для обслуговування (Iterator)");
+
+        Zone center = buildCenter();
+        Zone city = buildCity(center);
+
+        city.logState("до обходів");
+
+        Log.log("Runner", "Сценарій 1: авто з низьким зарядом (< 20%) у порядку маршруту");
+        Iterator<ParkedCar> lowCharge = city.lowChargeRouteIterator(20);
+        int n = 0;
+        while (lowCharge.hasNext()) {
+            Log.log("Служба обслуговування", "зупинка " + (++n) + ": " + lowCharge.next());
+        }
+
+        Log.log("Runner", "Сценарій 2: усі авто зони «Центр», включно з вкладеними зонами");
+        n = 0;
+        for (ParkedCar car : center) {
+            Log.log("Диспетчер", "авто " + (++n) + ": " + car);
+        }
+
+        Log.log("Runner", "Сценарій 3: авто, що простоюють понад добу, і одночасно інший обхід");
+        Iterator<ParkedCar> idle = city.idleIterator(24);
+        Iterator<ParkedCar> route = city.lowChargeRouteIterator(20);
+        List<ParkedCar> idleSeen = new ArrayList<>();
+        List<ParkedCar> routeSeen = new ArrayList<>();
+        while (idle.hasNext() || route.hasNext()) {
+            if (idle.hasNext()) {
+                ParkedCar car = idle.next();
+                idleSeen.add(car);
+                Log.log("Аналітика", "простій: " + car + " [видано " + idleSeen.size() + "]");
+            }
+            if (route.hasNext()) {
+                ParkedCar car = route.next();
+                routeSeen.add(car);
+                Log.log("Служба обслуговування", "низький заряд: " + car + " [видано " + routeSeen.size() + "]");
+            }
+        }
+        Log.log("Runner", "Незалежність обходів: результат Аналітики збігається з окремим обходом — "
+                + (idleSeen.equals(drain(city.idleIterator(24))))
+                + "; результат Служби обслуговування збігається з окремим обходом — "
+                + (routeSeen.equals(drain(city.lowChargeRouteIterator(20)))));
+
+        city.logState("після обходів (колекція не змінилась)");
+    }
+
+    private static List<ParkedCar> drain(Iterator<ParkedCar> iterator) {
+        List<ParkedCar> result = new ArrayList<>();
+        iterator.forEachRemaining(result::add);
+        return result;
+    }
+
+    /** Зона «Центр» із двома рівнями вкладених зон. */
+    private static Zone buildCenter() {
+        ParkingLot station = new ParkingLot("Вокзал", 1);
+        station.addCar(new ParkedCar("CE2001AA", 15, 3));
+        station.addCar(new ParkedCar("CE2002AA", 80, 30));
+        ParkingLot square = new ParkingLot("Центральна площа", 3);
+        square.addCar(new ParkedCar("CE2003AA", 45, 5));
+        square.addCar(new ParkedCar("CE2004AA", 10, 26));
+        ParkingLot townHall = new ParkingLot("Ратуша", 4);
+        townHall.addCar(new ParkedCar("CE2005AA", 18, 2));
+        townHall.addCar(new ParkedCar("CE2006AA", 90, 50));
+        ParkingLot armenian = new ParkingLot("Вірменська вул.", 5);
+        armenian.addCar(new ParkedCar("CE2007AA", 8, 1));
+        armenian.addCar(new ParkedCar("CE2008AA", 60, 12));
+
+        Zone pedestrian = new Zone("Пішохідна зона");
+        pedestrian.addLot(armenian);
+        Zone oldTown = new Zone("Старе місто");
+        oldTown.addLot(townHall);
+        oldTown.addSubZone(pedestrian);
+        Zone center = new Zone("Центр");
+        center.addLot(station);
+        center.addLot(square);
+        center.addSubZone(oldTown);
+        return center;
+    }
+
+    /** Місто = «Центр» + зона «Садгора». */
+    private static Zone buildCity(Zone center) {
+        ParkingLot depot = new ParkingLot("ТЦ Депот", 2);
+        depot.addCar(new ParkedCar("CE2009AA", 95, 40));
+        depot.addCar(new ParkedCar("CE2010AA", 19, 25));
+        ParkingLot sadgoraPark = new ParkingLot("Парк Садгора", 6);
+        sadgoraPark.addCar(new ParkedCar("CE2011AA", 22, 6));
+        sadgoraPark.addCar(new ParkedCar("CE2012AA", 5, 48));
+
+        Zone sadgora = new Zone("Садгора");
+        sadgora.addLot(depot);
+        sadgora.addLot(sadgoraPark);
+
+        Zone city = new Zone("Місто");
+        city.addSubZone(center);
+        city.addSubZone(sadgora);
+        return city;
     }
 }
