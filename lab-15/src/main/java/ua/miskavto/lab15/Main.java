@@ -6,6 +6,6 @@ public class Main {
         ScenarioRunner runner = new ScenarioRunner();
         runner.situation1Tariffs();
         runner.situation2Inspection();
-        // runner.situation3State(); // Завдання 3 (State) — колега
+        runner.situation3State();
     }
 }

@@ -13,11 +13,10 @@ import ua.miskavto.lab15.task2_template_method.ElectricCarInspection;
 import ua.miskavto.lab15.task2_template_method.GasCarInspection;
 import ua.miskavto.lab15.task2_template_method.PetrolCarInspection;
 import ua.miskavto.lab15.common.Log;
+import ua.miskavto.lab15.task3_state.SharedCar;
 
 /**
  * Раннер: окремий метод для кожної ситуації.
- * Завдання 3 (State) виконує колега: його код у пакеті task3_state, а метод situation3State()
- * додається сюди (і викликається з Main).
  */
 public class ScenarioRunner {
 
@@ -62,5 +61,30 @@ public class ScenarioRunner {
         Log.log("Runner", "Сценарій 3: додано тип «авто на газу» (один новий клас)");
         CarInspection gas = new GasCarInspection();
         gas.inspect(new Car("CE9012CC", 70));
+    }
+
+    /** Завдання 3 (State): стан авто. */
+    public void situation3State() {
+        Log.section("Ситуація 3. Стан авто (State)");
+
+        Log.log("Runner", "Сценарій 1: доступне → заброньоване → в поїздці → на паузі → в поїздці → доступне");
+        SharedCar car = new SharedCar("CE3141AA");
+        car.reserve("Іван Коваль");
+        car.unlock("Петро Мельник");
+        car.unlock("Іван Коваль");
+        car.pause();
+        car.endTrip();
+        car.unlock("Іван Коваль");
+        car.endTrip();
+
+        Log.log("Runner", "Сценарій 2: бронювання не підтверджене за 20 хвилин");
+        car.reserve("Олена Бондар");
+        car.tick(10);
+        car.tick(10);
+
+        Log.log("Runner", "Сценарій 3: авто на обслуговуванні, спроба забронювати");
+        car.sendToMaintenance();
+        car.reserve("Марія Шевчук");
+        car.returnFromMaintenance();
     }
 }
